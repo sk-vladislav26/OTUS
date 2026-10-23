@@ -1,0 +1,270 @@
+login as: slab
+slab@172.24.129.185's password:
+    -----------------------------------------------------------------------¬
+    ¦               • MobaXterm Professional Edition v25.1 •               ¦
+    ¦               (SSH client, X server and network tools)               ¦
+    ¦                                                                      ¦
+    ¦ ? SSH session to slab@172.24.129.185                                 ¦
+    ¦   • Direct SSH      :  ?                                             ¦
+    ¦   • SSH compression :  ?                                             ¦
+    ¦   • SSH-browser     :  ?                                             ¦
+    ¦   • X11-forwarding  :  ?  (remote display is forwarded through SSH)  ¦
+    ¦                                                                      ¦
+    ¦ ? For more info, ctrl+click on help or visit our website.            ¦
+    L-----------------------------------------------------------------------
+
+Welcome to Ubuntu 24.04.4 LTS (GNU/Linux 6.8.0-146-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Fri Oct 23 01:48:31 PM UTC 2026
+
+  System load:  0.0               Processes:             118
+  Usage of /:   46.3% of 9.75GB   Users logged in:       1
+  Memory usage: 26%               IPv4 address for eth0: 172.24.129.185
+  Swap usage:   0%
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+54 updates can be applied immediately.
+1 of these updates is a standard security update.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy settings
+
+
+Last login: Fri Oct 23 12:56:27 2026 from 172.24.128.1
+slab@slab:~$
+slab@slab:~$ lsblk
+NAME                      MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+fd0                         2:0    1    4K  0 disk
+sda                         8:0    0   15G  0 disk
++-sda1                      8:1    0    1M  0 part
++-sda2                      8:2    0  1.8G  0 part /boot
+L-sda3                      8:3    0 13.2G  0 part
+  L-ubuntu--vg-ubuntu--lv 252:0    0   10G  0 lvm  /
+sdb                         8:16   0    1G  0 disk
+sdc                         8:32   0    1G  0 disk
+sdd                         8:48   0    1G  0 disk
+sde                         8:64   0    1G  0 disk
+sdf                         8:80   0    1G  0 disk
+sdg                         8:96   0    1G  0 disk
+sdh                         8:112  0    1G  0 disk
+sdi                         8:128  0    1G  0 disk
+slab@slab:~$ sudo -i
+[sudo] password for slab:
+root@slab:~# zpool create otus1 mirror /dev/sdb /dev/sdc
+Defaulting to 4K blocksize (ashift=12) for '/dev/sdb'
+Defaulting to 4K blocksize (ashift=12) for '/dev/sdc'
+root@slab:~# zpool status
+  pool: otus1
+ state: ONLINE
+ scrub: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        otus1       ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+            sdc     ONLINE       0     0     0
+
+errors: No known data errors
+root@slab:~# zpool create otus2 mirror /dev/sdd /dev/sde
+Defaulting to 4K blocksize (ashift=12) for '/dev/sdd'
+Defaulting to 4K blocksize (ashift=12) for '/dev/sde'
+root@slab:~# zpool create otus3 mirror /dev/sdf /dev/sdg
+Defaulting to 4K blocksize (ashift=12) for '/dev/sdf'
+Defaulting to 4K blocksize (ashift=12) for '/dev/sdg'
+root@slab:~# zpool create otus4 mirror /dev/sdh /dev/sdi
+Defaulting to 4K blocksize (ashift=12) for '/dev/sdh'
+Defaulting to 4K blocksize (ashift=12) for '/dev/sdi'
+root@slab:~# zpool status
+  pool: otus1
+ state: ONLINE
+ scrub: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        otus1       ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+            sdc     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus2
+ state: ONLINE
+ scrub: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        otus2       ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sdd     ONLINE       0     0     0
+            sde     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus3
+ state: ONLINE
+ scrub: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        otus3       ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sdf     ONLINE       0     0     0
+            sdg     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus4
+ state: ONLINE
+ scrub: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        otus4       ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sdh     ONLINE       0     0     0
+            sdi     ONLINE       0     0     0
+
+errors: No known data errors
+root@slab:~# lsblk
+NAME                      MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+fd0                         2:0    1    4K  0 disk
+sda                         8:0    0   15G  0 disk
++-sda1                      8:1    0    1M  0 part
++-sda2                      8:2    0  1.8G  0 part /boot
+L-sda3                      8:3    0 13.2G  0 part
+  L-ubuntu--vg-ubuntu--lv 252:0    0   10G  0 lvm  /
+sdb                         8:16   0    1G  0 disk
+sdc                         8:32   0    1G  0 disk
+sdd                         8:48   0    1G  0 disk
+sde                         8:64   0    1G  0 disk
+sdf                         8:80   0    1G  0 disk
+sdg                         8:96   0    1G  0 disk
+sdh                         8:112  0    1G  0 disk
+sdi                         8:128  0    1G  0 disk
+root@slab:~# lsblk -f
+NAME   FSTYPE FSVER LABEL UUID                                   FSAVAIL FSUSE% MOUNTPOINTS
+fd0
+sda
++-sda1
++-sda2 ext4   1.0         50734e1a-081b-4242-a74a-cfb0c757e6a8      1.5G     6% /boot
+L-sda3 LVM2_m LVM2        NYrs05-c2JQ-IChu-dJpj-3SM3-FnrG-yj03PZ
+  L-ubuntu--vg-ubuntu--lv
+       ext4   1.0         3456153b-b3ba-49c5-b118-c0bdf4265bdd      4.7G    46% /
+sdb
+sdc
+sdd
+sde
+sdf
+sdg
+sdh
+sdi
+root@slab:~# df -hT
+Filesystem                        Type      Size  Used Avail Use% Mounted on
+tmpfs                             tmpfs      90M  1.1M   89M   2% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv ext4      9.8G  4.6G  4.8G  49% /
+tmpfs                             tmpfs     449M     0  449M   0% /dev/shm
+tmpfs                             tmpfs     5.0M     0  5.0M   0% /run/lock
+/dev/sda2                         ext4      1.7G  104M  1.5G   7% /boot
+tmpfs                             tmpfs      90M   12K   90M   1% /run/user/1000
+otus1                             fuse.zfs  984M  112K  984M   1% /otus1
+otus2                             fuse.zfs  984M  112K  984M   1% /otus2
+otus3                             fuse.zfs  984M  112K  984M   1% /otus3
+otus4                             fuse.zfs  984M  112K  984M   1% /otus4
+root@slab:~# zpool list
+NAME    SIZE  ALLOC   FREE    CAP  DEDUP  HEALTH  ALTROOT
+otus1  1016M   388K  1016M     0%  1.00x  ONLINE  -
+otus2  1016M   484K  1016M     0%  1.00x  ONLINE  -
+otus3  1016M   532K  1015M     0%  1.00x  ONLINE  -
+otus4  1016M   532K  1015M     0%  1.00x  ONLINE  -
+root@slab:~# zfs get compresionist
+bad property list: invalid property 'compresionist'
+usage:
+        get [-rHp] [-d max] [-o "all" | field[,...]] [-s source[,...]]
+            <"all" | property[,...]> [filesystem|volume|snapshot] ...
+
+The following properties are supported:
+
+        PROPERTY       EDIT  INHERIT   VALUES
+
+        available        NO       NO   <size>
+        compressratio    NO       NO   <1.00x or higher if compressed>
+        creation         NO       NO   <date>
+        defer_destroy    NO       NO   yes | no
+        mounted          NO       NO   yes | no
+        origin           NO       NO   <snapshot>
+        referenced       NO       NO   <size>
+        type             NO       NO   filesystem | volume | snapshot
+        used             NO       NO   <size>
+        usedbychildren   NO       NO   <size>
+        usedbydataset    NO       NO   <size>
+        usedbyrefreservation  NO       NO   <size>
+        usedbysnapshots  NO       NO   <size>
+        userrefs         NO       NO   <count>
+        aclinherit      YES      YES   discard | noallow | restricted | passthrough | passthrough-x
+        aclmode         YES      YES   discard | groupmask | passthrough
+        atime           YES      YES   on | off
+        canmount        YES       NO   on | off | noauto
+        casesensitivity  NO      YES   sensitive | insensitive | mixed
+        checksum        YES      YES   on | off | fletcher2 | fletcher4 | sha256
+        compression     YES      YES   on | off | lzjb | gzip | gzip-[1-9] | zle
+        copies          YES      YES   1 | 2 | 3
+        dedup           YES      YES   on | off | verify | sha256[,verify]
+        devices         YES      YES   on | off
+        exec            YES      YES   on | off
+        logbias         YES      YES   latency | throughput
+        mlslabel        YES      YES   <sensitivity label>
+        mountpoint      YES      YES   <path> | legacy | none
+        nbmand          YES      YES   on | off
+        normalization    NO      YES   none | formC | formD | formKC | formKD
+        primarycache    YES      YES   all | none | metadata
+        quota           YES       NO   <size> | none
+        readonly        YES      YES   on | off
+        recordsize      YES      YES   512 to 128k, power of 2
+        refquota        YES       NO   <size> | none
+        refreservation  YES       NO   <size> | none
+        reservation     YES       NO   <size> | none
+        secondarycache  YES      YES   all | none | metadata
+        setuid          YES      YES   on | off
+        sharenfs        YES      YES   on | off | share(1M) options
+        sharesmb        YES      YES   on | off | sharemgr(1M) options
+        snapdir         YES      YES   hidden | visible
+        utf8only         NO      YES   on | off
+        version         YES       NO   1 | 2 | 3 | 4 | current
+        volblocksize     NO      YES   512 to 128k, power of 2
+        volsize         YES       NO   <size>
+        vscan           YES      YES   on | off
+        xattr           YES      YES   on | off
+        zoned           YES      YES   on | off
+        userused@...     NO       NO   <size>
+        groupused@...    NO       NO   <size>
+        userquota@...   YES       NO   <size> | none
+        groupquota@...  YES       NO   <size> | none
+
+Sizes are specified in bytes with standard units such as K, M, G, etc.
+
+User-defined properties can be specified by using a name containing a colon (:).
+
+The {user|group}{used|quota}@ properties must be appended with
+a user or group specifier of one of these forms:
+    POSIX name      (eg: "matt")
+    POSIX id        (eg: "126829")
+    SMB name@domain (eg: "matt@sun")
+    SMB SID         (eg: "S-1-234-567-89")
+root@slab:~# zfs get compression
+NAME   PROPERTY     VALUE     SOURCE
+otus1  compression  off       default
+otus2  compression  off       default
+otus3  compression  off       default
+otus4  compression  off       default
+root@slab:~#
