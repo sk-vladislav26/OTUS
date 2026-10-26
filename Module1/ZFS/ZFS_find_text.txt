@@ -1,0 +1,44 @@
+root@slab:~#
+root@slab:~#
+root@slab:~# wget -O otus_task2.file --no-check-certificate https://drive.usercontent.google.com/download?id=1wgxjih8YZ-cqLqaZVa0lA3h3Y029c3oI&export=download~   [1] 4532
+root@slab:~#
+Redirecting output to ‘wget-log’.
+
+[1]+  Done                    wget -O otus_task2.file --no-check-certificate https://drive.usercontent.google.com/download?id=1wgxjih8YZ-cqLqaZVa0lA3h3Y029c3oI
+root@slab:~#
+root@slab:~# echo $?
+0
+root@slab:~# ls -l
+total 12424
+-rw-r--r-- 1 root root 7275140 Dec  6  2023 archive.tar.gz
+-rw-r--r-- 1 root root 5432736 Dec  6  2023 otus_task2.file
+-rw-r--r-- 1 root root    1114 Oct 26 15:05 wget-log
+drwxr-xr-x 2 root root    4096 May 15  2020 zpoolexport
+root@slab:~# zfs receive otus/test@today < otus_task2.file
+root@slab:~# echo $?
+0
+root@slab:~# df -hT
+Filesystem                        Type   Size  Used Avail Use% Mounted on
+tmpfs                             tmpfs   90M  1.1M   89M   2% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv ext4   9.8G  5.9G  3.4G  64% /
+tmpfs                             tmpfs  449M     0  449M   0% /dev/shm
+tmpfs                             tmpfs  5.0M     0  5.0M   0% /run/lock
+/dev/sda2                         ext4   1.7G  200M  1.4G  13% /boot
+tmpfs                             tmpfs   90M   12K   90M   1% /run/user/1000
+otus1                             zfs    880M   23M  858M   3% /otus1
+otus2                             zfs    880M   23M  858M   3% /otus2
+otus3                             zfs    880M   12M  868M   2% /otus3
+otus4                             zfs    880M   40M  840M   5% /otus4
+otus                              zfs    348M  128K  347M   1% /otus
+otus/hometask2                    zfs    349M  2.0M  347M   1% /otus/hometask2
+otus/test                         zfs    350M  2.9M  347M   1% /otus/test
+root@slab:~# find /o
+opt/   otus/  otus1/ otus2/ otus3/ otus4/
+root@slab:~# find /otus/
+hometask2/ test/
+root@slab:~# find /otus/test/ -name "secret_message"
+/otus/test/task1/file_mess/secret_message
+root@slab:~# cat $(find /otus/test/ -name "secret_message")
+https://otus.ru/lessons/linux-hl/
+
+root@slab:~#
