@@ -1,0 +1,211 @@
+
+root@slab:~# zpool list
+NAME    SIZE  ALLOC   FREE    CAP  DEDUP  HEALTH  ALTROOT
+otus1  1016M   388K  1016M     0%  1.00x  ONLINE  -
+otus2  1016M   388K  1016M     0%  1.00x  ONLINE  -
+otus3  1016M   388K  1016M     0%  1.00x  ONLINE  -
+otus4  1016M   388K  1016M     0%  1.00x  ONLINE  -
+root@slab:~# df -hT
+Filesystem                        Type      Size  Used Avail Use% Mounted on
+tmpfs                             tmpfs      90M  1.1M   89M   2% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv ext4      9.8G  4.9G  4.4G  53% /
+tmpfs                             tmpfs     449M     0  449M   0% /dev/shm
+tmpfs                             tmpfs     5.0M     0  5.0M   0% /run/lock
+/dev/sda2                         ext4      1.7G  200M  1.4G  13% /boot
+otus1                             fuse.zfs  984M  112K  984M   1% /otus1
+otus2                             fuse.zfs  984M  112K  984M   1% /otus2
+otus3                             fuse.zfs  984M  112K  984M   1% /otus3
+otus4                             fuse.zfs  984M  112K  984M   1% /otus4
+tmpfs                             tmpfs      90M   12K   90M   1% /run/user/1000
+root@slab:~# lsblk -f
+NAME FSTYPE FSVER LABEL UUID                                   FSAVAIL FSUSE% MOUNTPOINTS
+fd0
+sda
++-sda1
+¦
++-sda2
+¦    ext4   1.0         50734e1a-081b-4242-a74a-cfb0c757e6a8      1.4G    12% /boot
+L-sda3
+     LVM2_m LVM2        NYrs05-c2JQ-IChu-dJpj-3SM3-FnrG-yj03PZ
+  L-ubuntu--vg-ubuntu--lv
+     ext4   1.0         3456153b-b3ba-49c5-b118-c0bdf4265bdd      4.4G    50% /
+sdb  zfs_me 23    otus1 15289748489550320406
+sdc  zfs_me 23    otus1 15289748489550320406
+sdd  zfs_me 23    otus2 4704662707522056713
+sde  zfs_me 23    otus2 4704662707522056713
+sdf  zfs_me 23    otus3 6486991498218904566
+sdg  zfs_me 23    otus3 6486991498218904566
+sdh  zfs_me 23    otus4 17811260535400375839
+sdi  zfs_me 23    otus4 17811260535400375839
+root@slab:~#
+root@slab:~#
+root@slab:~# zfs get compression
+NAME   PROPERTY     VALUE     SOURCE
+otus1  compression  off       default
+otus2  compression  off       default
+otus3  compression  off       default
+otus4  compression  off       default
+root@slab:~#
+root@slab:~# df -hT
+Filesystem                        Type      Size  Used Avail Use% Mounted on
+tmpfs                             tmpfs      90M  1.1M   89M   2% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv ext4      9.8G  4.9G  4.4G  53% /
+tmpfs                             tmpfs     449M     0  449M   0% /dev/shm
+tmpfs                             tmpfs     5.0M     0  5.0M   0% /run/lock
+/dev/sda2                         ext4      1.7G  200M  1.4G  13% /boot
+otus1                             fuse.zfs  984M  112K  984M   1% /otus1
+otus2                             fuse.zfs  984M  112K  984M   1% /otus2
+otus3                             fuse.zfs  984M  112K  984M   1% /otus3
+otus4                             fuse.zfs  984M  112K  984M   1% /otus4
+tmpfs                             tmpfs      90M   12K   90M   1% /run/user/1000
+root@slab:~# zfs get compression
+NAME   PROPERTY     VALUE     SOURCE
+otus1  compression  off       default
+otus2  compression  off       default
+otus3  compression  off       default
+otus4  compression  off       default
+root@slab:~# zfs set compression=lzjb .
+./             .bash_history  .profile
+../            .bashrc        .ssh/
+root@slab:~# zfs set compression=lzjb otus1
+root@slab:~# zfs set compression=lz4 otus2
+cannot set property for 'otus2': 'compression' must be one of 'on | off | lzjb | gzip | gzip-[1-9] | zle'
+root@slab:~# zfs set compression=on otus2
+root@slab:~# zfs set compression=gzip-9 otus3
+root@slab:~# zfs set compression=zle  otus4
+root@slab:~# zfs get compression
+NAME   PROPERTY     VALUE     SOURCE
+otus1  compression  lzjb      local
+otus2  compression  on        local
+otus3  compression  gzip-9    local
+otus4  compression  zle       local
+root@slab:~# zfs get all | grep compression
+otus1  compression           lzjb                   local
+otus2  compression           on                     local
+otus3  compression           gzip-9                 local
+otus4  compression           zle                    local
+
+
+root@slab:~# for i in {1..4}; do wget -P /otus$i https://gutenberg.org/cache/epub/2600/pg2600.converter.log^Cdone
+root@slab:~# for i in {1..4}; do wget -P /otus$i https://gutenberg.org/cache/epub/2600/pg2600.converter.log --no-check-certificate; done
+--2026-10-26 14:12:20--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+WARNING: cannot verify gutenberg.org's certificate, issued by ‘CN=gw-r.rdif.ru,CN=gw-r.rdif.local,O=rdif’:
+  Self-signed certificate encountered.
+HTTP request sent, awaiting response... 301 Moved Permanently
+Location: https://www.gutenberg.org/cache/epub/2600/pg2600.converter.log [following]
+--2026-10-26 14:12:21--  https://www.gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving www.gutenberg.org (www.gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to www.gutenberg.org (www.gutenberg.org)|152.19.134.47|:443... connected.
+WARNING: cannot verify www.gutenberg.org's certificate, issued by ‘CN=gw-r.rdif.ru,CN=gw-r.rdif.local,O=rdif’:
+  Self-signed certificate encountered.
+HTTP request sent, awaiting response... 200 OK
+Length: 41273476 (39M) [text/plain]
+Saving to: ‘/otus1/pg2600.converter.log’
+
+pg2600.converter.log 100%[===================>]  39.36M  1.63MB/s    in 25s
+
+2026-10-26 14:12:47 (1.55 MB/s) - ‘/otus1/pg2600.converter.log’ saved [41273476/41273476]
+
+--2026-10-26 14:12:47--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+WARNING: cannot verify gutenberg.org's certificate, issued by ‘CN=gw-r.rdif.ru,CN=gw-r.rdif.local,O=rdif’:
+  Self-signed certificate encountered.
+HTTP request sent, awaiting response... 301 Moved Permanently
+Location: https://www.gutenberg.org/cache/epub/2600/pg2600.converter.log [following]
+--2026-10-26 14:12:48--  https://www.gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving www.gutenberg.org (www.gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to www.gutenberg.org (www.gutenberg.org)|152.19.134.47|:443... connected.
+WARNING: cannot verify www.gutenberg.org's certificate, issued by ‘CN=gw-r.rdif.ru,CN=gw-r.rdif.local,O=rdif’:
+  Self-signed certificate encountered.
+HTTP request sent, awaiting response... 200 OK
+Length: 41273476 (39M) [text/plain]
+Saving to: ‘/otus2/pg2600.converter.log’
+
+pg2600.converter.log 100%[===================>]  39.36M  1.66MB/s    in 24s
+
+2026-10-26 14:13:13 (1.64 MB/s) - ‘/otus2/pg2600.converter.log’ saved [41273476/41273476]
+
+--2026-10-26 14:13:13--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+WARNING: cannot verify gutenberg.org's certificate, issued by ‘CN=gw-r.rdif.ru,CN=gw-r.rdif.local,O=rdif’:
+  Self-signed certificate encountered.
+HTTP request sent, awaiting response... 301 Moved Permanently
+Location: https://www.gutenberg.org/cache/epub/2600/pg2600.converter.log [following]
+--2026-10-26 14:13:13--  https://www.gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving www.gutenberg.org (www.gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to www.gutenberg.org (www.gutenberg.org)|152.19.134.47|:443... connected.
+WARNING: cannot verify www.gutenberg.org's certificate, issued by ‘CN=gw-r.rdif.ru,CN=gw-r.rdif.local,O=rdif’:
+  Self-signed certificate encountered.
+HTTP request sent, awaiting response... 200 OK
+Length: 41273476 (39M) [text/plain]
+Saving to: ‘/otus3/pg2600.converter.log’
+
+pg2600.converter.log 100%[===================>]  39.36M  1.61MB/s    in 25s
+
+2026-10-26 14:13:39 (1.55 MB/s) - ‘/otus3/pg2600.converter.log’ saved [41273476/41273476]
+
+--2026-10-26 14:13:39--  https://gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving gutenberg.org (gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to gutenberg.org (gutenberg.org)|152.19.134.47|:443... connected.
+WARNING: cannot verify gutenberg.org's certificate, issued by ‘CN=gw-r.rdif.ru,CN=gw-r.rdif.local,O=rdif’:
+  Self-signed certificate encountered.
+HTTP request sent, awaiting response... 301 Moved Permanently
+Location: https://www.gutenberg.org/cache/epub/2600/pg2600.converter.log [following]
+--2026-10-26 14:13:40--  https://www.gutenberg.org/cache/epub/2600/pg2600.converter.log
+Resolving www.gutenberg.org (www.gutenberg.org)... 152.19.134.47, 2610:28:3090:3000:0:bad:cafe:47
+Connecting to www.gutenberg.org (www.gutenberg.org)|152.19.134.47|:443... connected.
+WARNING: cannot verify www.gutenberg.org's certificate, issued by ‘CN=gw-r.rdif.ru,CN=gw-r.rdif.local,O=rdif’:
+  Self-signed certificate encountered.
+HTTP request sent, awaiting response... 200 OK
+Length: 41273476 (39M) [text/plain]
+Saving to: ‘/otus4/pg2600.converter.log’
+
+pg2600.converter.log  99%[==================> ]  39.26M  82.5KB/s    in 51s
+
+2026-10-26 14:14:32 (787 KB/s) - Connection closed at byte 41165249. Retrying.
+
+--2026-10-26 14:14:33--  (try: 2)  https://www.gutenberg.org/cache/epub/2600/pg2600.converter.log
+Connecting to www.gutenberg.org (www.gutenberg.org)|152.19.134.47|:443... connected.
+WARNING: cannot verify www.gutenberg.org's certificate, issued by ‘CN=gw-r.rdif.ru,CN=gw-r.rdif.local,O=rdif’:
+  Self-signed certificate encountered.
+HTTP request sent, awaiting response... 206 Partial Content
+Length: 41273476 (39M), 108227 (106K) remaining [text/plain]
+Saving to: ‘/otus4/pg2600.converter.log’
+
+pg2600.converter.log 100%[+++++++++++++++++++>]  39.36M  --.-KB/s    in 0.01s
+
+2026-10-26 14:14:35 (9.04 MB/s) - ‘/otus4/pg2600.converter.log’ saved [41273476/41273476]
+
+
+
+
+
+root@slab:~# df -hT
+Filesystem                        Type      Size  Used Avail Use% Mounted on
+tmpfs                             tmpfs      90M  1.1M   89M   2% /run
+/dev/mapper/ubuntu--vg-ubuntu--lv ext4      9.8G  4.9G  4.4G  53% /
+tmpfs                             tmpfs     449M     0  449M   0% /dev/shm
+tmpfs                             tmpfs     5.0M     0  5.0M   0% /run/lock
+/dev/sda2                         ext4      1.7G  200M  1.4G  13% /boot
+otus1                             fuse.zfs  984M   23M  962M   3% /otus1
+otus2                             fuse.zfs  984M   23M  962M   3% /otus2
+otus3                             fuse.zfs  984M   12M  973M   2% /otus3
+otus4                             fuse.zfs  984M   40M  945M   5% /otus4
+tmpfs                             tmpfs      90M   12K   90M   1% /run/user/1000
+root@slab:~# ls -l /otus
+otus1/ otus2/ otus3/ otus4/
+root@slab:~# zfs list
+NAME    USED  AVAIL  REFER  MOUNTPOINT
+otus1  22.4M   962M  22.2M  /otus1
+otus2  22.4M   962M  22.2M  /otus2
+otus3  11.6M   972M  11.3M  /otus3
+otus4  39.9M   944M  39.5M  /otus4
+root@slab:~# zfs get all | grep compression
+otus1  compression           lzjb                   local
+otus2  compression           on                     local
+otus3  compression           gzip-9                 local
+otus4  compression           zle                    local
