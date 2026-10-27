@@ -1,0 +1,288 @@
+login as: slab
+slab@172.29.24.108's password:
+    ---------------------------------------------
+    ¦               • MobaXterm Professional Edit
+    ¦               (SSH client, X server and net
+    ¦
+    ¦ ? SSH session to slab@172.29.24.108
+    ¦   • Direct SSH      :  ?
+    ¦   • SSH compression :  ?
+    ¦   • SSH-browser     :  ?
+    ¦   • X11-forwarding  :  ?  (remote display i
+    ¦
+    ¦ ? For more info, ctrl+click on help or visi
+    L--------------------------------------------
+
+Welcome to Ubuntu 24.04.4 LTS (GNU/Linux 6.8.0-14
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.co
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Tue Oct 27 08:25:48 AM
+
+  System load:  0.0               Processes:
+  Usage of /:   45.9% of 9.75GB   Users logged in
+  Memory usage: 46%               IPv4 address fo
+  Swap usage:   0%
+
+
+Expanded Security Maintenance for Applications is
+
+54 updates can be applied immediately.
+1 of these updates is a standard security update.
+To see these additional updates run: apt list --u
+
+Enable ESM Apps to receive additional future secu
+See https://ubuntu.com/esm or run: sudo pro statu
+
+
+The list of available updates is more than a week
+To check for new updates run: sudo apt update
+New release '26.04.1 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+Last login: Tue Oct 27 08:23:02 2026 from 172.29.
+slab@slabnfss:~$
+slab@slabnfss:~$
+slab@slabnfss:~$ apt install nf
+nfacct
+nfct
+nfdump
+nfdump-sflow
+nfoview
+nfs4-acl-tools
+nfs-common
+nfs-ganesha
+nfs-ganesha-ceph
+nfs-ganesha-doc
+nfs-ganesha-gluster
+nfs-ganesha-gpfs
+nfs-ganesha-mem
+nfs-ganesha-mount-9p
+nfs-ganesha-nullfs
+nfs-ganesha-proxy-v4
+nfs-ganesha-rados-grace
+nfs-ganesha-rgw
+nfs-ganesha-vfs
+nfs-kernel-server
+nfsometer
+nfstest
+nfstrace
+nfstrace-doc
+nfswatch
+nftables
+nftlb
+slab@slabnfss:~$ sudo apt install nfs-kernel-server
+[sudo] password for slab:
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  keyutils libnfsidmap1 nfs-common rpcbind
+Suggested packages:
+  watchdog
+The following NEW packages will be installed:
+  keyutils libnfsidmap1 nfs-common
+  nfs-kernel-server rpcbind
+0 upgraded, 5 newly installed, 0 to remove and 52 not upgraded.
+Need to get 569 kB of archives.
+After this operation, 2,022 kB of additional disk space will be used.
+Do you want to continue? [Y/n] Y
+Get:1 http://de.archive.ubuntu.com/ubuntu noble-updates/main amd64 libnfsidmap1 amd64 1:2.6.4-3ubuntu5.1 [48.3 kB]
+Get:2 http://de.archive.ubuntu.com/ubuntu noble/main amd64 rpcbind amd64 1.2.6-7ubuntu2 [46.5 kB]
+Get:3 http://de.archive.ubuntu.com/ubuntu noble/main amd64 keyutils amd64 1.6.3-3build1 [56.8 kB]
+Get:4 http://de.archive.ubuntu.com/ubuntu noble-updates/main amd64 nfs-common amd64 1:2.6.4-3ubuntu5.1 [248 kB]
+Get:5 http://de.archive.ubuntu.com/ubuntu noble-updates/main amd64 nfs-kernel-server amd64 1:2.6.4-3ubuntu5.1 [169 kB]
+Fetched 569 kB in 1s (453 kB/s)
+Selecting previously unselected package libnfsidmap1:amd64.
+(Reading database ... 88182 files and directories currently installed.)
+Preparing to unpack .../libnfsidmap1_1%3a2.6.4-3ubuntu5.1_amd64.deb ...
+Unpacking libnfsidmap1:amd64 (1:2.6.4-3ubuntu5.1) ...
+Selecting previously unselected package rpcbind.
+Preparing to unpack .../rpcbind_1.2.6-7ubuntu2_amd64.deb ...
+Unpacking rpcbind (1.2.6-7ubuntu2) ...
+Selecting previously unselected package keyutils.
+Preparing to unpack .../keyutils_1.6.3-3build1_amd64.deb ...
+Unpacking keyutils (1.6.3-3build1) ...
+Selecting previously unselected package nfs-common.
+Preparing to unpack .../nfs-common_1%3a2.6.4-3ubuntu5.1_amd64.deb ...
+Unpacking nfs-common (1:2.6.4-3ubuntu5.1) ...
+Selecting previously unselected package nfs-kernel-server.
+Preparing to unpack .../nfs-kernel-server_1%3a2.6.4-3ubuntu5.1_amd64.deb ...
+Unpacking nfs-kernel-server (1:2.6.4-3ubuntu5.1) ...
+Setting up libnfsidmap1:amd64 (1:2.6.4-3ubuntu5.1) ...
+Setting up rpcbind (1.2.6-7ubuntu2) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/rpcbind.service > /usr/lib/systemd/system/rpcbind.service.
+Created symlink /etc/systemd/system/sockets.target.wants/rpcbind.socket > /usr/lib/systemd/system/rpcbind.socket.
+Setting up keyutils (1.6.3-3build1) ...
+Setting up nfs-common (1:2.6.4-3ubuntu5.1) ...
+
+Creating config file /etc/idmapd.conf with new version
+
+Creating config file /etc/nfs.conf with new version
+info: Selecting UID from range 100 to 999 ...
+
+info: Adding system user `statd' (UID 111) ...
+info: Adding new user `statd' (UID 111) with group `nogroup' ...
+info: Not creating home directory `/var/lib/nfs'.
+Created symlink /etc/systemd/system/multi-user.target.wants/nfs-client.target > /usr/lib/systemd/system/nfs-client.target.
+Created symlink /etc/systemd/system/remote-fs.target.wants/nfs-client.target > /usr/lib/systemd/system/nfs-client.target.
+auth-rpcgss-module.service is a disabled or a static unit, not starting it.
+nfs-idmapd.service is a disabled or a static unit, not starting it.
+nfs-utils.service is a disabled or a static unit, not starting it.
+proc-fs-nfsd.mount is a disabled or a static unit, not starting it.
+rpc-gssd.service is a disabled or a static unit, not starting it.
+rpc-statd-notify.service is a disabled or a static unit, not starting it.
+rpc-statd.service is a disabled or a static unit, not starting it.
+rpc-svcgssd.service is a disabled or a static unit, not starting it.
+Setting up nfs-kernel-server (1:2.6.4-3ubuntu5.1) ...
+Created symlink /etc/systemd/system/nfs-mountd.service.requires/fsidd.service > /usr/lib/systemd/system/fsidd.service.
+Created symlink /etc/systemd/system/nfs-server.service.requires/fsidd.service > /usr/lib/systemd/system/fsidd.service.
+Created symlink /etc/systemd/system/nfs-client.target.wants/nfs-blkmap.service > /usr/lib/systemd/system/nfs-blkmap.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/nfs-server.service > /usr/lib/systemd/system/nfs-server.service.
+nfs-mountd.service is a disabled or a static unit, not starting it.
+nfsdcld.service is a disabled or a static unit, not starting it.
+
+Creating config file /etc/exports with new version
+
+Creating config file /etc/default/nfs-kernel-server with new version
+Processing triggers for man-db (2.12.0-4build2) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+Scanning processes...
+Scanning linux images...
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor
+ (qemu) binaries on this host.
+slab@slabnfss:~$ ss -tulpn
+Netid State  Recv-Q  Send-Q        Local Address:Port           Peer Address:Port     Process
+udp   UNCONN 0       0                   0.0.0.0:33803               0.0.0.0:*
+udp   UNCONN 0       0                 127.0.0.1:787                 0.0.0.0:*
+udp   UNCONN 0       0                   0.0.0.0:60448               0.0.0.0:*
+udp   UNCONN 0       0                127.0.0.54:53                  0.0.0.0:*
+udp   UNCONN 0       0             127.0.0.53%lo:53                  0.0.0.0:*
+udp   UNCONN 0       0                   0.0.0.0:35128               0.0.0.0:*
+udp   UNCONN 0       0        172.29.24.108%eth0:68                  0.0.0.0:*
+udp   UNCONN 0       0                   0.0.0.0:111                 0.0.0.0:*
+udp   UNCONN 0       0                   0.0.0.0:53117               0.0.0.0:*
+udp   UNCONN 0       0                   0.0.0.0:39843               0.0.0.0:*
+udp   UNCONN 0       0                      [::]:53704                  [::]:*
+udp   UNCONN 0       0                      [::]:37472                  [::]:*
+udp   UNCONN 0       0                      [::]:111                    [::]:*
+udp   UNCONN 0       0                      [::]:38031                  [::]:*
+udp   UNCONN 0       0                      [::]:39314                  [::]:*
+udp   UNCONN 0       0                      [::]:40636                  [::]:*
+tcp   LISTEN 0       64                  0.0.0.0:39913               0.0.0.0:*
+tcp   LISTEN 0       4096                0.0.0.0:54685               0.0.0.0:*
+tcp   LISTEN 0       4096                0.0.0.0:53427               0.0.0.0:*
+tcp   LISTEN 0       4096                0.0.0.0:111                 0.0.0.0:*
+tcp   LISTEN 0       64                  0.0.0.0:2049                0.0.0.0:*
+tcp   LISTEN 0       128               127.0.0.1:6010                0.0.0.0:*
+tcp   LISTEN 0       4096                0.0.0.0:22                  0.0.0.0:*
+tcp   LISTEN 0       4096                0.0.0.0:53291               0.0.0.0:*
+tcp   LISTEN 0       4096          127.0.0.53%lo:53                  0.0.0.0:*
+tcp   LISTEN 0       4096             127.0.0.54:53                  0.0.0.0:*
+tcp   LISTEN 0       4096                0.0.0.0:48947               0.0.0.0:*
+tcp   LISTEN 0       4096                   [::]:38141                  [::]:*
+tcp   LISTEN 0       4096                   [::]:46783                  [::]:*
+tcp   LISTEN 0       4096                   [::]:42675                  [::]:*
+tcp   LISTEN 0       128                   [::1]:6010                   [::]:*
+tcp   LISTEN 0       4096                   [::]:111                    [::]:*
+tcp   LISTEN 0       64                     [::]:2049                   [::]:*
+tcp   LISTEN 0       4096                   [::]:40731                  [::]:*
+tcp   LISTEN 0       4096                   [::]:22                     [::]:*
+tcp   LISTEN 0       64                     [::]:44065                  [::]:*
+slab@slabnfss:~$ mkdir -p /srv/share/upload
+mkdir: cannot create directory ‘/srv/share’: Permission denied
+slab@slabnfss:~$ sudo mkdir -p /srv/share/upload
+slab@slabnfss:~$ chown -R nobody:nogroup /srv/share
+chown: changing ownership of '/srv/share/upload': Operation not permitted
+chown: changing ownership of '/srv/share': Operation not permitted
+slab@slabnfss:~$ sudo -i
+root@slabnfss:~# chown -R nobody:nogroup /srv/share
+root@slabnfss:~# chmod 0777 /srv/share/upload
+root@slabnfss:~# cat /etc/exports
+# /etc/exports: the access control list for filesystems which may be exported
+#               to NFS clients.  See exports(5).
+#
+# Example for NFSv2 and NFSv3:
+# /srv/homes       hostname1(rw,sync,no_subtree_check) hostname2(ro,sync,no_subtree_check)
+#
+# Example for NFSv4:
+# /srv/nfs4        gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check)
+# /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
+#
+root@slabnfss:~# ls -l /src/*
+ls: cannot access '/src/*': No such file or directory
+root@slabnfss:~# ls -l /src/
+ls: cannot access '/src/': No such file or directory
+root@slabnfss:~# ls -l
+total 0
+root@slabnfss:~# ls -l /srv/
+total 4
+drwxr-xr-x 3 nobody nogroup 4096 Oct 27 08:32 share
+root@slabnfss:~# ls -l /srv/share/
+total 4
+drwxrwxrwx 2 nobody nogroup 4096 Oct 27 08:32 upload
+root@slabnfss:~# cat << EOF > /etc/exports
+/srv/share 172.29.32./32(rw,sync,root_squash)
+EOF
+root@slabnfss:~# cat /etc/exports
+/srv/share 172.29.32./32(rw,sync,root_squash)
+root@slabnfss:~# echo '# /etc/exports: the access control list for filesystems which may be exported
+#               to NFS clients.  See exports(5).
+#
+# Example for NFSv2 and NFSv3:
+# /srv/homes       hostname1(rw,sync,no_subtree_check) hostname2(ro,sync,no_subtree_check)
+#
+# Example for NFSv4:
+# /srv/nfs4        gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check)
+# /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
+#
+' > /etc/exports
+root@slabnfss:~# cat /etc/exports
+# /etc/exports: the access control list for filesystems which may be exported
+#               to NFS clients.  See exports(5).
+#
+# Example for NFSv2 and NFSv3:
+# /srv/homes       hostname1(rw,sync,no_subtree_check) hostname2(ro,sync,no_subtree_check)
+#
+# Example for NFSv4:
+# /srv/nfs4        gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check)
+# /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
+#
+
+root@slabnfss:~# echo '/srv/share 172.29.23.130/32(rw,sync,root_squash)
+' >> /etc/exports
+root@slabnfss:~# cat /etc/exports                # /etc/exports: the access control list for filesystems which may be exported
+#               to NFS clients.  See exports(5).
+#
+# Example for NFSv2 and NFSv3:
+# /srv/homes       hostname1(rw,sync,no_subtree_check) hostname2(ro,sync,no_subtree_check)
+#
+# Example for NFSv4:
+# /srv/nfs4        gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check)
+# /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
+#
+
+/srv/share 172.29.23.130/32(rw,sync,root_squash)
+
+root@slabnfss:~# export
+export    exportfs
+root@slabnfss:~# exportfs -r
+exportfs: /etc/exports [2]: Neither 'subtree_check' or 'no_subtree_check' specified for export "172.29.23.130/32:/srv/share".
+  Assuming default behaviour ('no_subtree_check').
+  NOTE: this default has changed since nfs-utils version 1.0.x
+
+root@slabnfss:~# exportfs -s
+/srv/share  172.29.23.130/32(sync,wdelay,hide,no_subtree_check,sec=sys,rw,secure,root_squash,no_all_squash)
+root@slabnfss:~#
