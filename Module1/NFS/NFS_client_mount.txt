@@ -1,0 +1,74 @@
+
+
+
+root@slab:~# apt install nfs-common -y
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+nfs-common is already the newest version (1:2.6.4-3ubuntu5.1).
+The following package was automatically installed and is no longer required:
+  libfuse2t64
+Use 'apt autoremove' to remove it.
+0 upgraded, 0 newly installed, 0 to remove and 61 not upgraded.
+
+
+root@slab:~#  echo "172.29.24.108:/srv/share/ /mnt nfs vers=3,noauto,x-systemd.automount 0 0" >> /etc/fstab
+root@slab:~# cat /etc/fstab
+# /etc/fstab: static file system information.
+#
+# Use 'blkid' to print the universally unique identifier for a
+# device; this may be used with UUID= as a more robust way to name devices
+# that works even if disks are added and removed. See fstab(5).
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+# / was on /dev/ubuntu-vg/ubuntu-lv during curtin installation
+/dev/disk/by-id/dm-uuid-LVM-YSPDQOk99MERk2mxLSD30pqqiGFhThd2am1KKrolgksUV3uPGpZ32JT050V365Hk / ext4 defaults 0 1
+# /boot was on /dev/sda2 during curtin installation
+/dev/disk/by-uuid/50734e1a-081b-4242-a74a-cfb0c757e6a8 /boot ext4 defaults 0 1
+/swap.img       none    swap    sw     00
+172.29.24.108:/srv/share/ /mnt nfs vers=3,noauto,x-systemd.automount 0 0
+root@slab:~# df -hT | grep mnt
+root@slab:~# mount | grep mnt
+systemd-1 on /mnt type autofs (rw,relatime,fd=67,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=4642)
+root@slab:~# systemctl daemon-reload
+root@slab:~# systemctl restart remote-fs.target
+root@slab:~# mount | grep mnt           systemd-1 on /mnt type autofs (rw,relatime,fd=67,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=4642)
+root@slab:~# systemctl start mnt.mount
+root@slab:~# mount | grep mnt           systemd-1 on /mnt type autofs (rw,relatime,fd=67,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=4642)
+172.29.24.108:/srv/share/ on /mnt type nfs (rw,relatime,vers=3,rsize=65536,wsize=65536,namlen=255,hard,proto=tcp,timeo=600,retrans=2,sec=sys,mountaddr=172.29.24.108,mountvers=3,mountport=60448,mountproto=udp,local_lock=none,addr=172.29.24.108)
+root@slab:~# df -hT | grep mnt          172.29.24.108:/srv/share/         nfs    9.8G  4.6G  4.8G  49% /mnt
+root@slab:~# ls -l /mnt/
+slab1/  slab4/  test2/  test5/
+slab2/  slab5/  test3/  upload/
+slab3/  test1/  test4/
+root@slab:~# ls -l /mnt/
+total 44
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab1
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab2
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab3
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab4
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab5
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:42 test1
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test2
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test3
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test4
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test5
+drwxrwxrwx 2 nobody nogroup 4096 Oct 27 08:32 upload
+
+root@slab:~# for i in {1..3}; do mkdir -p /mnt/slab_v2_$i;done
+root@slab:~# ls -l /mnt/                total 56
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab1
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab2
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab3
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab4
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab5
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:58 slab_v2_1
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:58 slab_v2_2
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:58 slab_v2_3
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:42 test1
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test2
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test3
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test4
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test5
+drwxrwxrwx 2 nobody nogroup 4096 Oct 27 08:32 upload
+root@slab:~#

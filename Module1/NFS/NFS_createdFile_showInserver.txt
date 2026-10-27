@@ -1,0 +1,15 @@
+
+root@slabnfss:~# ls -l /srv/share/
+total 44
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab1
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab2
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab3
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab4
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 10:32 slab5
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:42 test1
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test2
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test3
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test4
+drwxr-xr-x 2 nobody nogroup 4096 Oct 27 09:43 test5
+drwxrwxrwx 2 nobody nogroup 4096 Oct 27 08:32 upload
+root@slabnfss:~#
