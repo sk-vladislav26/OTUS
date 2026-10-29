@@ -1,0 +1,26 @@
+slab@slab:~$ ls -l hello-otus-build/*
+hello-otus-build/DEBIAN:
+total 4
+-rw-rw-r-- 1 slab slab 272 Oct 29 16:52 control
+
+hello-otus-build/usr:
+total 4
+drwxrwxr-x 2 slab slab 4096 Oct 29 17:09 bin
+slab@slab:~$ cat hello-otus-build/DEBIAN/control
+
+
+Package: hello-otus
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: all
+Maintainer: Linux Administrator <admin@example.com>
+Description: Example package for a custom Ubuntu repository
+ A demonstration application built for the Linux Professional course.
+
+slab@slab:~$ cat hello-otus-build/usr/bin/hello-otus
+#!/bin/bash
+echo "Hello from my own Ubuntu repository!"
+
+slab@slab:~$
+

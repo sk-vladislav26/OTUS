@@ -1,0 +1,45 @@
+slab@slab:~$
+slab@slab:~$ dpkg-deb --build hello-otus-build hello-otus_1.0.0_all.deb
+dpkg-deb: building package 'hello-otus' in 'hello-otus_1.0.0_all.deb'.
+slab@slab:~$ ls -l
+total 8
+-rw-r--r-- 1 slab slab  682 Oct 29 19:21 hello-otus_1.0.0_all.deb
+drwxrwxr-x 4 slab slab 4096 Oct 29 17:09 hello-otus-build
+slab@slab:~$ dpkg-deb --info  hello-otus_1.0.0_all.deb
+ new Debian package, version 2.0.
+ size 682 bytes: control archive=304 bytes.
+     272 bytes,    10 lines      control
+
+
+ Package: hello-otus
+ Version: 1.0.0
+ Section: utils
+ Priority: optional
+ Architecture: all
+ Maintainer: Linux Administrator <admin@example.com>
+ Description: Example package for a custom Ubuntu repository
+  A demonstration application built for the Linux Professional course.
+
+slab@slab:~$ sudo apt install ./hello-otus
+hello-otus_1.0.0_all.deb  hello-otus-build/
+slab@slab:~$ sudo apt install ./hello-otus_1.0.0_all.deb
+[sudo] password for slab:
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Note, selecting 'hello-otus' instead of './hello-otus_1.0.0_all.deb'
+hello-otus is already the newest version (1.0.0).
+The following package was automatically installed and is no longer required:
+  libfuse2t64
+Use 'sudo apt autoremove' to remove it.
+0 upgraded, 0 newly installed, 0 to remove and 61 not upgraded.
+slab@slab:~$ hello-otus
+Hello from my own Ubuntu repository!
+slab@slab:~$ dpkg -l hello-otus
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name           Version      Architecture Description
++++-==============-============-============-=================================>
+ii  hello-otus     1.0.0        all          Example package for a custom Ubun>
+slab@slab:~$
