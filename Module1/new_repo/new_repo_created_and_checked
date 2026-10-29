@@ -1,0 +1,66 @@
+
+slab@slab:~$ ls -l /srv/apt-repo/*
+/srv/apt-repo/conf:
+total 4
+-rw-r--r-- 1 root root 161 Oct 29 18:08 distributions
+
+/srv/apt-repo/db:
+total 88
+-rw-r--r-- 1 root root 16384 Oct 29 18:08 checksums.db
+-rw-r--r-- 1 root root 16384 Oct 29 18:08 contents.cache.db
+-rw-r--r-- 1 root root 16384 Oct 29 18:08 packages.db
+-rw-r--r-- 1 root root 16384 Oct 29 18:08 references.db
+-rw-r--r-- 1 root root 20480 Oct 29 18:08 release.caches.db
+-rw-r--r-- 1 root root    31 Oct 29 18:10 version
+
+/srv/apt-repo/dists:
+total 4
+drwxr-xr-x 3 root root 4096 Oct 29 18:08 noble
+
+/srv/apt-repo/pool:
+total 4
+drwxr-xr-x 3 root root 4096 Oct 29 18:08 main
+
+/srv/apt-repo/public:
+total 0
+-rw-r--r-- 1 root root 0 Oct 29 17:53 otus-repo.asc
+slab@slab:~$ ls -l /srv/apt-repo/conf/distributions
+-rw-r--r-- 1 root root 161 Oct 29 18:08 /srv/apt-repo/conf/distributions
+slab@slab:~$ vi /srv/apt-repo/conf/distributions
+slab@slab:~$ ls -l /srv/apt-repo/conf/distributions
+
+
+
+
+slab@slab:~$ cat /srv/apt-repo/conf/distributions
+
+Origin: OTUS
+Label: OTUS Custom Repository
+Codename: noble
+Architectures: amd64
+Components: main
+Description: Custom repository for Linux Professional course
+
+
+
+
+#Видим ошибку, потому что репозиторий уже был добавлен, команда после, подтвержадет это
+slab@slab:~$ sudo reprepro -b /srv/apt-repo includedeb noble ~/hello-otus_1.0.0_all.deb
+ERROR: '/home/slab/hello-otus_1.0.0_all.deb' cannot be included as 'pool/main/h/hello-otus/hello-otus_1.0.0_all.deb'.
+Already existing files can only be included again, if they are the same, but:
+md5 expected: 62fc18fee6cd0bc4e59888754b62e62d, got: 9709de86e4b1c7d1a67ea77e23038c52
+sha1 expected: a4a394f8552d5db3b54155ec17f4186deaf1d27d, got: 5dcaa3e24103e6d3b2e7ea11f096cc84ec70486e
+sha256 expected: e4624556035ef2d185d64300e5ca6621db927897c71a1d7a5d7d1829fc2610d8, got: 7a127da57416b570aff7424824891fa47757a31016b8b7a1639f248e100f0a39
+size expected: 672, got: 682
+There have been errors!
+slab@slab:~$ sudo reprepro -b /srv/apt-repo list noble
+noble|main|amd64: hello-otus 1.0.0
+slab@slab:~$
+slab@slab:~$
+slab@slab:~$
+slab@slab:~$
+slab@slab:~$
+slab@slab:~$ sudo reprepro -b /srv/apt-repo list noble
+noble|main|amd64: hello-otus 1.0.0
+slab@slab:~$
+
