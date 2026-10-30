@@ -1,0 +1,66 @@
+
+#Подготовка публичного каталога, создали, перешли
+slab@slab:~$ mkdir -p /var/www/html/repo/
+slab@slab:~$ cd /var/www/html/repo/
+
+#Копирование репозитория, исключая служебные
+slab@slab:/var/www/html/repo$ sudo rsync -a  --exclude='conf/' --exclude='db/' /srv/apt-repo/ /var/www/html/repo/
+[sudo] password for slab:
+
+#Отдельная конфигурация для nginx
+slab@slab:/var/www/html/repo$ cat /etc/nginx/sites-available/otus-repo
+#nginx
+server {
+    listen 80;
+    server_name _;
+
+    root /var/www/html;
+    index index.html;
+
+    location /repo/ {
+        autoindex on;
+        try_files $uri $uri/ =404;
+    }
+
+    location /repo/conf/ {
+        deny all;
+    }
+
+    location /repo/db/ {
+        deny all;
+    }
+}
+
+#Включили конфигурацию, "сделали симлинк"
+slab@slab:/var/www/html/repo$ sudo ln -s /etc/nginx/sites-enabled/ /etc/nginx/sites-available/
+default    otus-repo
+slab@slab:/var/www/html/repo$ sudo ln -s  /etc/nginx/sites-available/otus-repo /etc/nginx/sites-enabled/otus-repo
+
+#Тестируем nginx
+slab@slab:/var/www/html/repo$ nginx -t
+2026/10/30 04:27:13 [warn] 10614#10614: the "user" directive makes sense only if the master process runs with super-user privileges, ignored in /etc/nginx/nginx.conf:1
+2026/10/30 04:27:13 [warn] 10614#10614: conflicting server name "_" on 0.0.0.0:80, ignored
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+2026/10/30 04:27:13 [emerg] 10614#10614: open() "/run/nginx.pid" failed (13: permission denied)
+nginx: configuration file /etc/nginx/nginx.conf test failed
+slab@slab:/var/www/html/repo$ sudo !!
+sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+#Перезагрузка службы Nginx
+slab@slab:/var/www/html/repo$ sudo systemctl reload nginx.service
+
+#Проверяем метаданные
+slab@slab:/var/www/html/repo$ curl -i http://localhost/repo/dists/noble/release
+http/1.1 200 ok
+server: nginx/1.24.0 (ubuntu)
+date: fri, 30 oct 2026 04:30:07 gmt
+content-type: application/octet-stream
+content-length: 927
+last-modified: thu, 29 oct 2026 18:08:14 gmt
+connection: keep-alive
+etag: "6ae38b8e-39f"
+accept-ranges: bytes
+
+
