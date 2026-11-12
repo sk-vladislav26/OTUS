@@ -1,0 +1,1912 @@
+slab@172.29.16.34's password:
+    -----------------------------------------------------------------------¬
+    ¦               • MobaXterm Professional Edition v25.1 •               ¦
+    ¦               (SSH client, X server and network tools)               ¦
+    ¦                                                                      ¦
+    ¦ ? SSH session to slab@172.29.16.34                                   ¦
+    ¦   • Direct SSH      :  ?                                             ¦
+    ¦   • SSH compression :  ?                                             ¦
+    ¦   • SSH-browser     :  ?                                             ¦
+    ¦   • X11-forwarding  :  ?  (remote display is forwarded through SSH)  ¦
+    ¦                                                                      ¦
+    ¦ ? For more info, ctrl+click on help or visit our website.            ¦
+    L-----------------------------------------------------------------------
+
+Welcome to Ubuntu 24.04.4 LTS (GNU/Linux 6.8.0-147-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Thu Nov 12 11:59:30 AM UTC 2026
+
+  System load:  0.0               Processes:             213
+  Usage of /:   70.5% of 9.75GB   Users logged in:       1
+  Memory usage: 29%               IPv4 address for eth0: 172.29.16.34
+  Swap usage:   2%
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+85 updates can be applied immediately.
+22 of these updates are standard security updates.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy                                                                                                   settings
+
+
+Last login: Thu Nov 12 11:45:31 2026 from 172.29.16.1
+slab@slab:~$ apt install n
+slab@slab:~$ sudo apt install nginx -y
+[sudo] password for slab:
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+nginx is already the newest version (1.24.0-2ubuntu7.19).
+The following package was automatically installed and is no longer required:
+  libfuse2t64
+Use 'sudo apt autoremove' to remove it.
+0 upgraded, 0 newly installed, 0 to remove and 79 not upgraded.
+slab@slab:~$ cat /etc/sys
+sysctl.conf  sysctl.d/    sysstat/     systemd/
+slab@slab:~$ cat /etc/systemd/system/nginx@.service
+# Stop dance for nginx
+# =======================
+#
+# ExecStop sends SIGSTOP (graceful stop) to the nginx process.
+# If, after 5s (--retry QUIT/5) nginx is still running, systemd takes control
+# and sends SIGTERM (fast shutdown) to the main process.
+# After another 5s (TimeoutStopSec=5), and if nginx is alive, systemd sends
+# SIGKILL to all the remaining processes in the process group (KillMode=mixed).
+#
+# nginx signals reference doc:
+# http://nginx.org/en/docs/control.html
+#
+[Unit]
+Description=A high performance web server and a reverse proxy server
+Documentation=man:nginx(8)
+After=network.target nss-lookup.target
+
+[Service]
+Type=forking
+PIDFile=/run/nginx-%I.pid
+ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/nginx-%I.conf -q -g 'daemon on; master_process on;'
+ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx-%I.conf -g 'daemon on; master_process on;'
+ExecReload=/usr/sbin/nginx -c /etc/nginx/nginx-%I.conf -g 'daemon on; master_process on;' -s reload
+ExecStop=-/sbin/start-stop-daemon --quiet --stop --retry QUIT/5 --pidfile /run/nginx-%I.pid
+TimeoutStopSec=5
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
+
+slab@slab:~$ vi /etc/nginx/
+conf.d/                mime.types             .nginx-first.conf.swp  sites-enabled/
+fastcgi.conf           modules-available/     nginx-second.conf      snippets/
+fastcgi_params         modules-enabled/       proxy_params           uwsgi_params
+koi-utf                nginx.conf             scgi_params            win-utf
+koi-win                nginx-first.conf       sites-available/
+slab@slab:~$ vi /etc/nginx/nginx
+nginx.conf         nginx-first.conf   nginx-second.conf
+slab@slab:~$ vi /etc/nginx/nginx.conf
+slab@slab:~$ cat /etc/nginx/
+cat: /etc/nginx/: Is a directory
+slab@slab:~$ cd /etc/nginx/
+slab@slab:/etc/nginx$ vi nginx
+nginx.conf         nginx-first.conf   nginx-second.conf
+slab@slab:/etc/nginx$ vi nginx-first.conf
+slab@slab:/etc/nginx$ vi nginx.conf
+slab@slab:/etc/nginx$ vi nginx-first.conf
+slab@slab:/etc/nginx$ vi nginx-second.conf.conf
+slab@slab:/etc/nginx$ vi nginx-second.conf
+slab@slab:/etc/nginx$ sdiff nginx-second.conf nginx
+nginx.conf         nginx-first.conf   nginx-second.conf
+slab@slab:/etc/nginx$ sdiff nginx-second.conf nginx-first.conf
+user www-data;                                                  user www-data;
+worker_processes auto;                                          worker_processes auto;
+pid /run/nginx-second.pid;                                    | pid /run/nginx-first.pid;
+error_log /var/log/nginx/error.log;                             error_log /var/log/nginx/error.log;
+include /etc/nginx/modules-enabled/*.conf;                      include /etc/nginx/modules-enabled/*.conf;
+
+events {                                                        events {
+        worker_connections 768;                                         worker_connections 768;
+        # multi_accept on;                                              # multi_accept on;
+}                                                               }
+
+http {                                                          http {
+
+        ##                                                              ##
+        # Basic Settings                                                # Basic Settings
+        ##                                                              ##
+                                                              |
+        server {                                              |         server {
+                                                              |
+                listen 9002;                                  |                 listen 9001;
+                                                              |
+        }                                                     |         }
+
+        sendfile on;                                                    sendfile on;
+        tcp_nopush on;                                                  tcp_nopush on;
+        types_hash_max_size 2048;                                       types_hash_max_size 2048;
+        # server_tokens off;                                            # server_tokens off;
+
+        # server_names_hash_bucket_size 64;                             # server_names_hash_bucket_size 64;
+        # server_name_in_redirect off;                                  # server_name_in_redirect off;
+
+        include /etc/nginx/mime.types;                                  include /etc/nginx/mime.types;
+        default_type application/octet-stream;                          default_type application/octet-strea                                                                                                  m;
+
+        ##                                                              ##
+        # SSL Settings                                                  # SSL Settings
+        ##                                                              ##
+
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Droppi           ssl_protocols TLSv1 TLSv1.1 TLSv1.2                                                                                                   TLSv1.3; # Droppi
+        ssl_prefer_server_ciphers on;                                   ssl_prefer_server_ciphers on;
+
+        ##                                                              ##
+        # Logging Settings                                              # Logging Settings
+        ##                                                              ##
+
+        access_log /var/log/nginx/access.log;                           access_log /var/log/nginx/access.log                                                                                                  ;
+
+        ##                                                              ##
+        # Gzip Settings                                                 # Gzip Settings
+        ##                                                              ##
+
+        gzip on;                                                        gzip on;
+
+        # gzip_vary on;                                                 # gzip_vary on;
+        # gzip_proxied any;                                             # gzip_proxied any;
+        # gzip_comp_level 6;                                            # gzip_comp_level 6;
+        # gzip_buffers 16 8k;                                           # gzip_buffers 16 8k;
+        # gzip_http_version 1.1;                                        # gzip_http_version 1.1;
+        # gzip_types text/plain text/css application/json app           # gzip_types text/plain text/css app                                                                                                  lication/json app
+
+        ##                                                              ##
+        # Virtual Host Configs                                          # Virtual Host Configs
+        ##                                                              ##
+
+        include /etc/nginx/conf.d/*.conf;                               include /etc/nginx/conf.d/*.conf;
+        include /etc/nginx/sites-enabled/*;                             include /etc/nginx/sites-enabled/*;
+}                                                               }
+
+
+#mail {                                                         #mail {
+#       # See sample authentication script at:                  #       # See sample authentication script a                                                                                                  t:
+#       # http://wiki.nginx.org/ImapAuthenticateWithApachePhp   #       # http://wiki.nginx.org/ImapAuthenti                                                                                                  cateWithApachePhp
+#                                                               #
+#       # auth_http localhost/auth.php;                         #       # auth_http localhost/auth.php;
+#       # pop3_capabilities "TOP" "USER";                       #       # pop3_capabilities "TOP" "USER";
+#       # imap_capabilities "IMAP4rev1" "UIDPLUS";              #       # imap_capabilities "IMAP4rev1" "UID                                                                                                  PLUS";
+#                                                               #
+#       server {                                                #       server {
+#               listen     localhost:110;                       #               listen     localhost:110;
+#               protocol   pop3;                                #               protocol   pop3;
+#               proxy      on;                                  #               proxy      on;
+#       }                                                       #       }
+#                                                               #
+#       server {                                                #       server {
+#               listen     localhost:143;                       #               listen     localhost:143;
+#               protocol   imap;                                #               protocol   imap;
+#               proxy      on;                                  #               proxy      on;
+#       }                                                       #       }
+#}                                                              #}
+slab@slab:/etc/nginx$ sdiff -s nginx-second.conf nginx-first.conf
+pid /run/nginx-second.pid;                                    | pid /run/nginx-first.pid;
+                                                              |
+        server {                                              |         server {
+                                                              |
+                listen 9002;                                  |                 listen 9001;
+                                                              |
+        }                                                     |         }
+slab@slab:/etc/nginx$ sdiff -s nginx-second.conf nginx-first.conf nginx.conf
+sdiff: extra operand 'nginx.conf'
+sdiff: Try 'sdiff --help' for more information.
+slab@slab:/etc/nginx$ sdiff -s nginx.conf nginx-first.conf
+pid /run/nginx.pid;                                           | pid /run/nginx-first.pid;
+                                                              >
+                                                              >         server {
+                                                              >
+                                                              >                 listen 9001;
+                                                              >
+                                                              >         }
+slab@slab:/etc/nginx$ array = ["first" "second"]
+array: command not found
+slab@slab:/etc/nginx$ array == ["first" "second"]
+array: command not found
+slab@slab:/etc/nginx$ array @= ["first" "second"]
+array: command not found
+slab@slab:/etc/nginx$ array = ("first" "second")
+-bash: syntax error near unexpected token `('
+slab@slab:/etc/nginx$ array = ("first", "second")
+-bash: syntax error near unexpected token `('
+slab@slab:/etc/nginx$ array = ()
+-bash: syntax error near unexpected token `('
+slab@slab:/etc/nginx$ array = []
+array: command not found
+slab@slab:/etc/nginx$ array=()
+slab@slab:/etc/nginx$ array=("first", "second")
+slab@slab:/etc/nginx$ array=("first" "second")
+slab@slab:/etc/nginx$ echo ${}"
+> ^C
+slab@slab:/etc/nginx$ echo "${array[@]}"
+first second
+slab@slab:/etc/nginx$ echo "${!array[@]}"
+0 1
+slab@slab:/etc/nginx$ echo "${#array[@]}"
+2
+slab@slab:/etc/nginx$ echo "${array[*]}"
+first second
+slab@slab:/etc/nginx$ f
+f: command not found
+slab@slab:/etc/nginx$ for i in "${array[@]}";do echo i
+> ^C
+slab@slab:/etc/nginx$ for i in "${array[@]}";do echo i;done
+i
+i
+slab@slab:/etc/nginx$ for i in "${array[@]}";do echo $i;done
+first
+second
+slab@slab:/etc/nginx$ for i in "${array[@]}";do systemctl status nging@$i;done
+Unit nging@first.service could not be found.
+Unit nging@second.service could not be found.
+slab@slab:/etc/nginx$ for i in "${array[@]}";do systemctl status nginx@$i;done
+0 nginx@first.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: inactive (dead)
+       Docs: man:nginx(8)
+0 nginx@second.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: inactive (dead)
+       Docs: man:nginx(8)
+slab@slab:/etc/nginx$ for i in "${array[@]}";do systemctl status nginx@$i; echo $i ;done
+0 nginx@first.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: inactive (dead)
+       Docs: man:nginx(8)
+first
+0 nginx@second.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: inactive (dead)
+       Docs: man:nginx(8)
+second
+slab@slab:/etc/nginx$ for i in "${array[@]}";do systemctl status nginx@$i; systemctl start nginx@$i; echo "-                                                                                                  ------------" ;done
+0 nginx@first.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: inactive (dead)
+       Docs: man:nginx(8)
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ====
+Authentication is required to start 'nginx@first.service'.
+Authenticating as: slab
+Password:
+==== AUTHENTICATION COMPLETE ====
+Job for nginx@first.service failed because the control process exited with error code.
+See "systemctl status nginx@first.service" and "journalctl -xeu nginx@first.service" for details.
+-------------
+0 nginx@second.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: inactive (dead)
+       Docs: man:nginx(8)
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ====
+Authentication is required to start 'nginx@second.service'.
+Authenticating as: slab
+Password:
+==== AUTHENTICATION COMPLETE ====
+Job for nginx@second.service failed because the control process exited with error code.
+See "systemctl status nginx@second.service" and "journalctl -xeu nginx@second.service" for details.
+-------------
+slab@slab:/etc/nginx$ for i in "${array[@]}";do systemctl status nginx@$i; echo $i ;done                                                                                                                      ? nginx@first.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2026-11-12 12:16:25 UTC; 11s ago
+       Docs: man:nginx(8)
+    Process: 3803 ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/nginx-first.conf -q -g daemon on; master_pr>
+    Process: 3804 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx-first.conf -g daemon on; master_process on;>
+        CPU: 6ms
+
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] still could not bind()
+Nov 12 12:16:25 slab systemd[1]: nginx@first.service: Control process exited, code=exited, status=1/FAILURE
+Nov 12 12:16:25 slab systemd[1]: nginx@first.service: Failed with result 'exit-code'.
+Nov 12 12:16:25 slab systemd[1]: Failed to start nginx@first.service - A high performance web server and a >
+first
+? nginx@second.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2026-11-12 12:16:30 UTC; 23s ago
+       Docs: man:nginx(8)
+    Process: 3823 ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/nginx-second.conf -q -g daemon on; master_p>
+    Process: 3825 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx-second.conf -g daemon on; master_process on>
+        CPU: 7ms
+
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] still could not bind()
+Nov 12 12:16:30 slab systemd[1]: nginx@second.service: Control process exited, code=exited, status=1/FAILURE
+Nov 12 12:16:30 slab systemd[1]: nginx@second.service: Failed with result 'exit-code'.
+Nov 12 12:16:30 slab systemd[1]: Failed to start nginx@second.service - A high performance web server and a>
+...skipping...
+? nginx@second.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2026-11-12 12:16:30 UTC; 23s ago
+       Docs: man:nginx(8)
+    Process: 3823 ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/nginx-second.conf -q -g daemon on; master_p>
+    Process: 3825 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx-second.conf -g daemon on; master_process on>
+        CPU: 7ms
+
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] still could not bind()
+Nov 12 12:16:30 slab systemd[1]: nginx@second.service: Control process exited, code=exited, status=1/FAILURE
+Nov 12 12:16:30 slab systemd[1]: nginx@second.service: Failed with result 'exit-code'.
+Nov 12 12:16:30 slab systemd[1]: Failed to start nginx@second.service - A high performance web server and a>
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+second
+slab@slab:/etc/nginx$ vi nginx
+nginx.conf         nginx-first.conf   nginx-second.conf
+slab@slab:/etc/nginx$ vi nginx.conf
+slab@slab:/etc/nginx$ for i in "${array[@]}";do systemctl status nginx@$i; echo $i ;done                                                                                                                      ? nginx@first.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2026-11-12 12:16:25 UTC; 1min 41s ago
+       Docs: man:nginx(8)
+    Process: 3803 ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/nginx-first.conf -q -g daemon on; master_pr>
+    Process: 3804 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx-first.conf -g daemon on; master_process on;>
+        CPU: 6ms
+
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] still could not bind()
+Nov 12 12:16:25 slab systemd[1]: nginx@first.service: Control process exited, code=exited, status=1/FAILURE
+Nov 12 12:16:25 slab systemd[1]: nginx@first.service: Failed with result 'exit-code'.
+Nov 12 12:16:25 slab systemd[1]: Failed to start nginx@first.service - A high performance web server and a >
+first
+? nginx@second.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2026-11-12 12:16:30 UTC; 1min 47s ago
+       Docs: man:nginx(8)
+    Process: 3823 ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/nginx-second.conf -q -g daemon on; master_p>
+    Process: 3825 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx-second.conf -g daemon on; master_process on>
+        CPU: 7ms
+
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] still could not bind()
+Nov 12 12:16:30 slab systemd[1]: nginx@second.service: Control process exited, code=exited, status=1/FAILURE
+Nov 12 12:16:30 slab systemd[1]: nginx@second.service: Failed with result 'exit-code'.
+Nov 12 12:16:30 slab systemd[1]: Failed to start nginx@second.service - A high performance web server and a>
+second
+slab@slab:/etc/nginx$ vi nginx
+nginx.conf         nginx-first.conf   nginx-second.conf
+slab@slab:/etc/nginx$ vi nginx
+nginx.conf         nginx-first.conf   nginx-second.conf
+slab@slab:/etc/nginx$ vi nginx-first.conf
+slab@slab:/etc/nginx$ vi nginx-first.conf
+slab@slab:/etc/nginx$ sudo vi nginx-first.conf
+[sudo] password for slab:
+slab@slab:/etc/nginx$ systemctl daemon-reload
+==== AUTHENTICATING FOR org.freedesktop.systemd1.reload-daemon ====
+Authentication is required to reload the systemd state.
+Authenticating as: slab
+Password:
+==== AUTHENTICATION COMPLETE ====
+slab@slab:/etc/nginx$ for i in "${array[@]}";do systemctl status nginx@$i; systemctl start nginx@$i; echo "-                                                                                                  ------------" ;done
+? nginx@first.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2026-11-12 12:16:25 UTC; 3min 46s ago
+       Docs: man:nginx(8)
+        CPU: 6ms
+
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] still could not bind()
+Nov 12 12:16:25 slab systemd[1]: nginx@first.service: Control process exited, code=exited, status=1/FAILURE
+Nov 12 12:16:25 slab systemd[1]: nginx@first.service: Failed with result 'exit-code'.
+Nov 12 12:16:25 slab systemd[1]: Failed to start nginx@first.service - A high performance web server and a >
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ====
+Authentication is required to start 'nginx@first.service'.
+Authenticating as: slab
+Password:
+==== AUTHENTICATION COMPLETE ====
+-------------
+? nginx@second.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2026-11-12 12:16:30 UTC; 3min 50s ago
+       Docs: man:nginx(8)
+        CPU: 7ms
+
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:29 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:30 slab nginx[3825]: nginx: [emerg] still could not bind()
+Nov 12 12:16:30 slab systemd[1]: nginx@second.service: Control process exited, code=exited, status=1/FAILURE
+Nov 12 12:16:30 slab systemd[1]: nginx@second.service: Failed with result 'exit-code'.
+Nov 12 12:16:30 slab systemd[1]: Failed to start nginx@second.service - A high performance web server and a>
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ====
+Authentication is required to start 'nginx@second.service'.
+Authenticating as: slab
+Password:
+==== AUTHENTICATION COMPLETE ====
+
+Job for nginx@second.service failed because the control process exited with error code.
+See "systemctl status nginx@second.service" and "journalctl -xeu nginx@second.service" for details.
+-------------
+slab@slab:/etc/nginx$
+slab@slab:/etc/nginx$ sudo journalctl -xeu nginx@second.service
+-- The unit nginx@second.service has entered the 'failed' state with result 'exit-code'.
+Nov 12 12:16:30 slab systemd[1]: Failed to start nginx@second.service - A high performance web server and a>
+-- Subject: A start job for unit nginx@second.service has failed
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- A start job for unit nginx@second.service has finished with a failure.
+--
+-- The job identifier is 10147 and the job result is failed.
+Nov 12 12:20:25 slab systemd[1]: Starting nginx@second.service - A high performance web server and a revers>
+-- Subject: A start job for unit nginx@second.service has begun execution
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- A start job for unit nginx@second.service has begun execution.
+--
+-- The job identifier is 11112.
+Nov 12 12:20:25 slab nginx[4054]: 2026/11/12 12:20:25 [warn] 4054#4054: conflicting server name "_" on 0.0.>
+Nov 12 12:20:25 slab nginx[4056]: 2026/11/12 12:20:25 [warn] 4056#4056: conflicting server name "_" on 0.0.>
+Nov 12 12:20:25 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:25 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:25 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:25 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:27 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:27 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:27 slab nginx[4056]: nginx: [emerg] still could not bind()
+Nov 12 12:20:27 slab systemd[1]: nginx@second.service: Control process exited, code=exited, status=1/FAILURE
+-- Subject: Unit process exited
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- An ExecStart= process belonging to unit nginx@second.service has exited.
+--
+-- The process' exit code is 'exited' and its exit status is 1.
+Nov 12 12:20:27 slab systemd[1]: nginx@second.service: Failed with result 'exit-code'.
+-- Subject: Unit failed
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- The unit nginx@second.service has entered the 'failed' state with result 'exit-code'.
+Nov 12 12:20:27 slab systemd[1]: Failed to start nginx@second.service - A high performance web server and a>
+-- Subject: A start job for unit nginx@second.service has failed
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- A start job for unit nginx@second.service has finished with a failure.
+--
+-- The job identifier is 11112 and the job result is failed.
+ ESCOC
+ed' state with result 'exit-code'.
+@second.service - A high performance web server and a reverse proxy server.
+has failed
+
+
+
+hed with a failure.
+
+ailed.
+.service - A high performance web server and a reverse proxy server...
+has begun execution
+
+
+
+ execution.
+
+
+[warn] 4054#4054: conflicting server name "_" on 0.0.0.0:80, ignored
+[warn] 4056#4056: conflicting server name "_" on 0.0.0.0:80, ignored
+) to 0.0.0.0:80 failed (98: Address already in use)
+) to [::]:80 failed (98: Address already in use)
+) to 0.0.0.0:80 failed (98: Address already in use)
+) to [::]:80 failed (98: Address already in use)
+) to 0.0.0.0:80 failed (98: Address already in use)
+) to [::]:80 failed (98: Address already in use)
+) to 0.0.0.0:80 failed (98: Address already in use)
+) to [::]:80 failed (98: Address already in use)
+) to 0.0.0.0:80 failed (98: Address already in use)
+) to [::]:80 failed (98: Address already in use)
+ could not bind()
+ Control process exited, code=exited, status=1/FAILURE
+
+
+
+
+d.service has exited.
+
+tus is 1.
+ Failed with result 'exit-code'.
+
+
+
+
+ed' state with result 'exit-code'.
+@second.service - A high performance web server and a reverse proxy server.
+has failed
+
+
+
+hed with a failure.
+
+ailed.
+ ESCOD
+-- The unit nginx@second.service has entered the 'failed' state with result 'exit-code'.
+Nov 12 12:16:30 slab systemd[1]: Failed to start nginx@second.service - A high performance web server and a>
+-- Subject: A start job for unit nginx@second.service has failed
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- A start job for unit nginx@second.service has finished with a failure.
+--
+-- The job identifier is 10147 and the job result is failed.
+Nov 12 12:20:25 slab systemd[1]: Starting nginx@second.service - A high performance web server and a revers>
+-- Subject: A start job for unit nginx@second.service has begun execution
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- A start job for unit nginx@second.service has begun execution.
+--
+-- The job identifier is 11112.
+Nov 12 12:20:25 slab nginx[4054]: 2026/11/12 12:20:25 [warn] 4054#4054: conflicting server name "_" on 0.0.>
+Nov 12 12:20:25 slab nginx[4056]: 2026/11/12 12:20:25 [warn] 4056#4056: conflicting server name "_" on 0.0.>
+Nov 12 12:20:25 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:25 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:25 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:25 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:27 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:27 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:27 slab nginx[4056]: nginx: [emerg] still could not bind()
+Nov 12 12:20:27 slab systemd[1]: nginx@second.service: Control process exited, code=exited, status=1/FAILURE
+-- Subject: Unit process exited
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- An ExecStart= process belonging to unit nginx@second.service has exited.
+--
+-- The process' exit code is 'exited' and its exit status is 1.
+Nov 12 12:20:27 slab systemd[1]: nginx@second.service: Failed with result 'exit-code'.
+-- Subject: Unit failed
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- The unit nginx@second.service has entered the 'failed' state with result 'exit-code'.
+Nov 12 12:20:27 slab systemd[1]: Failed to start nginx@second.service - A high performance web server and a>
+-- Subject: A start job for unit nginx@second.service has failed
+-- Defined-By: systemd
+-- Support: http://www.ubuntu.com/support
+--
+-- A start job for unit nginx@second.service has finished with a failure.
+--
+-- The job identifier is 11112 and the job result is failed.
+slab@slab:/etc/nginx$ sudo grep -Rn "listen" /etc/nginx/sites-enabled/
+/etc/nginx/sites-enabled/default:22:    listen 80 default_server;
+/etc/nginx/sites-enabled/default:23:    listen [::]:80 default_server;
+/etc/nginx/sites-enabled/default:27:    # listen 443 ssl default_server;
+/etc/nginx/sites-enabled/default:28:    # listen [::]:443 ssl default_server;
+/etc/nginx/sites-enabled/default:80:#   listen 80;
+/etc/nginx/sites-enabled/default:81:#   listen [::]:80;
+/etc/nginx/sites-enabled/otus-repo:3:    listen 80;
+slab@slab:/etc/nginx$ sudo nginx -t -c /etc/nginx/nginx-second.conf
+2026/11/12 12:22:38 [warn] 4079#4079: conflicting server name "_" on 0.0.0.0:80, ignored
+nginx: the configuration file /etc/nginx/nginx-second.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx-second.conf test is successful
+slab@slab:/etc/nginx$ ss -tulpn state listening
+Netid      Recv-Q      Send-Q            Local Address:Port             Peer Address:Port      Process
+tcp        0           4096                 127.0.0.54:53                    0.0.0.0:*
+tcp        0           4096                    0.0.0.0:111                   0.0.0.0:*
+tcp        0           511                     0.0.0.0:80                    0.0.0.0:*
+tcp        0           4096                    0.0.0.0:22                    0.0.0.0:*
+tcp        0           128                   127.0.0.1:6010                  0.0.0.0:*
+tcp        0           4096              127.0.0.53%lo:53                    0.0.0.0:*
+tcp        0           511                     0.0.0.0:9001                  0.0.0.0:*
+tcp        0           4096                       [::]:111                      [::]:*
+tcp        0           511                        [::]:80                       [::]:*
+tcp        0           4096                       [::]:22                       [::]:*
+tcp        0           128                       [::1]:6010                     [::]:*
+slab@slab:/etc/nginx$ ss -tulpn state listening | grep 80
+tcp   0      511          0.0.0.0:80        0.0.0.0:*
+tcp   0      511             [::]:80           [::]:*
+slab@slab:/etc/nginx$ ss -tulpn state listening
+Netid      Recv-Q      Send-Q            Local Address:Port             Peer Address:Port      Process
+tcp        0           4096                 127.0.0.54:53                    0.0.0.0:*
+tcp        0           4096                    0.0.0.0:111                   0.0.0.0:*
+tcp        0           511                     0.0.0.0:80                    0.0.0.0:*
+tcp        0           4096                    0.0.0.0:22                    0.0.0.0:*
+tcp        0           128                   127.0.0.1:6010                  0.0.0.0:*
+tcp        0           4096              127.0.0.53%lo:53                    0.0.0.0:*
+tcp        0           511                     0.0.0.0:9001                  0.0.0.0:*
+tcp        0           4096                       [::]:111                      [::]:*
+tcp        0           511                        [::]:80                       [::]:*
+tcp        0           4096                       [::]:22                       [::]:*
+tcp        0           128                       [::1]:6010                     [::]:*
+slab@slab:/etc/nginx$ ss -tulpn state listening
+Netid      Recv-Q      Send-Q            Local Address:Port             Peer Address:Port      Process
+tcp        0           4096                 127.0.0.54:53                    0.0.0.0:*
+tcp        0           4096                    0.0.0.0:111                   0.0.0.0:*
+tcp        0           511                     0.0.0.0:80                    0.0.0.0:*
+tcp        0           4096                    0.0.0.0:22                    0.0.0.0:*
+tcp        0           128                   127.0.0.1:6010                  0.0.0.0:*
+tcp        0           4096              127.0.0.53%lo:53                    0.0.0.0:*
+tcp        0           511                     0.0.0.0:9001                  0.0.0.0:*
+tcp        0           4096                       [::]:111                      [::]:*
+tcp        0           511                        [::]:80                       [::]:*
+tcp        0           4096                       [::]:22                       [::]:*
+tcp        0           128                       [::1]:6010                     [::]:*
+slab@slab:/etc/nginx$ ss -t state listening
+Recv-Q        Send-Q               Local Address:Port                 Peer Address:Port       Process
+0             4096                    127.0.0.54:domain                    0.0.0.0:*
+0             4096                       0.0.0.0:sunrpc                    0.0.0.0:*
+0             511                        0.0.0.0:http                      0.0.0.0:*
+0             4096                       0.0.0.0:ssh                       0.0.0.0:*
+0             128                      127.0.0.1:6010                      0.0.0.0:*
+0             4096                 127.0.0.53%lo:domain                    0.0.0.0:*
+0             511                        0.0.0.0:9001                      0.0.0.0:*
+0             4096                          [::]:sunrpc                       [::]:*
+0             511                           [::]:http                         [::]:*
+0             4096                          [::]:ssh                          [::]:*
+0             128                          [::1]:6010                         [::]:*
+slab@slab:/etc/nginx$ ss --help
+Usage: ss [ OPTIONS ]
+       ss [ OPTIONS ] [ FILTER ]
+   -h, --help          this message
+   -V, --version       output version information
+   -n, --numeric       don't resolve service names
+   -r, --resolve       resolve host names
+   -a, --all           display all sockets
+   -l, --listening     display listening sockets
+   -o, --options       show timer information
+   -e, --extended      show detailed socket information
+   -m, --memory        show socket memory usage
+   -p, --processes     show process using socket
+   -T, --threads       show thread using socket
+   -i, --info          show internal TCP information
+       --tipcinfo      show internal tipc socket information
+   -s, --summary       show socket usage summary
+       --tos           show tos and priority information
+       --cgroup        show cgroup information
+   -b, --bpf           show bpf filter socket information
+   -E, --events        continually display sockets as they are destroyed
+   -Z, --context       display task SELinux security contexts
+   -z, --contexts      display task and socket SELinux security contexts
+   -N, --net           switch to the specified network namespace name
+
+   -4, --ipv4          display only IP version 4 sockets
+   -6, --ipv6          display only IP version 6 sockets
+   -0, --packet        display PACKET sockets
+   -t, --tcp           display only TCP sockets
+   -M, --mptcp         display only MPTCP sockets
+   -S, --sctp          display only SCTP sockets
+   -u, --udp           display only UDP sockets
+   -d, --dccp          display only DCCP sockets
+   -w, --raw           display only RAW sockets
+   -x, --unix          display only Unix domain sockets
+       --tipc          display only TIPC sockets
+       --vsock         display only vsock sockets
+       --xdp           display only XDP sockets
+   -f, --family=FAMILY display sockets of type FAMILY
+       FAMILY := {inet|inet6|link|unix|netlink|vsock|tipc|xdp|help}
+
+   -K, --kill          forcibly close sockets, display what was closed
+   -H, --no-header     Suppress header line
+   -O, --oneline       socket's data printed on a single line
+       --inet-sockopt  show various inet socket options
+
+   -A, --query=QUERY, --socket=QUERY
+       QUERY := {all|inet|tcp|mptcp|udp|raw|unix|unix_dgram|unix_stream|unix_seqpacket|packet|packet_raw|pac                                                                                                  ket_dgram|netlink|dccp|sctp|vsock_stream|vsock_dgram|tipc|xdp}[,QUERY]
+
+   -D, --diag=FILE     Dump raw information about TCP sockets to FILE
+   -F, --filter=FILE   read filter information from FILE
+       FILTER := [ state STATE-FILTER ] [ EXPRESSION ]
+       STATE-FILTER := {all|connected|synchronized|bucket|big|TCP-STATES}
+         TCP-STATES := {established|syn-sent|syn-recv|fin-wait-{1,2}|time-wait|closed|close-wait|last-ack|li                                                                                                  stening|closing}
+          connected := {established|syn-sent|syn-recv|fin-wait-{1,2}|time-wait|close-wait|last-ack|closing}
+       synchronized := {established|syn-recv|fin-wait-{1,2}|time-wait|close-wait|last-ack|closing}
+             bucket := {syn-recv|time-wait}
+                big := {established|syn-sent|fin-wait-{1,2}|closed|close-wait|last-ack|listening|closing}
+slab@slab:/etc/nginx$ ss -t state listening
+Recv-Q        Send-Q               Local Address:Port                 Peer Address:Port       Process
+0             4096                    127.0.0.54:domain                    0.0.0.0:*
+0             4096                       0.0.0.0:sunrpc                    0.0.0.0:*
+0             511                        0.0.0.0:http                      0.0.0.0:*
+0             4096                       0.0.0.0:ssh                       0.0.0.0:*
+0             128                      127.0.0.1:6010                      0.0.0.0:*
+0             4096                 127.0.0.53%lo:domain                    0.0.0.0:*
+0             511                        0.0.0.0:9001                      0.0.0.0:*
+0             4096                          [::]:sunrpc                       [::]:*
+0             511                           [::]:http                         [::]:*
+0             4096                          [::]:ssh                          [::]:*
+0             128                          [::1]:6010                         [::]:*
+slab@slab:/etc/nginx$ ss -tulp state listening
+Netid      Recv-Q      Send-Q           Local Address:Port              Peer Address:Port      Process
+tcp        0           4096                127.0.0.54:domain                 0.0.0.0:*
+tcp        0           4096                   0.0.0.0:sunrpc                 0.0.0.0:*
+tcp        0           511                    0.0.0.0:http                   0.0.0.0:*
+tcp        0           4096                   0.0.0.0:ssh                    0.0.0.0:*
+tcp        0           128                  127.0.0.1:6010                   0.0.0.0:*
+tcp        0           4096             127.0.0.53%lo:domain                 0.0.0.0:*
+tcp        0           511                    0.0.0.0:9001                   0.0.0.0:*
+tcp        0           4096                      [::]:sunrpc                    [::]:*
+tcp        0           511                       [::]:http                      [::]:*
+tcp        0           4096                      [::]:ssh                       [::]:*
+tcp        0           128                      [::1]:6010                      [::]:*
+slab@slab:/etc/nginx$ ss -tp state listening
+Recv-Q        Send-Q               Local Address:Port                 Peer Address:Port       Process
+0             4096                    127.0.0.54:domain                    0.0.0.0:*
+0             4096                       0.0.0.0:sunrpc                    0.0.0.0:*
+0             511                        0.0.0.0:http                      0.0.0.0:*
+0             4096                       0.0.0.0:ssh                       0.0.0.0:*
+0             128                      127.0.0.1:6010                      0.0.0.0:*
+0             4096                 127.0.0.53%lo:domain                    0.0.0.0:*
+0             511                        0.0.0.0:9001                      0.0.0.0:*
+0             4096                          [::]:sunrpc                       [::]:*
+0             511                           [::]:http                         [::]:*
+0             4096                          [::]:ssh                          [::]:*
+0             128                          [::1]:6010                         [::]:*
+slab@slab:/etc/nginx$ ps afx | grep nginx
+   1285 ?        Ss     0:00 nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
+   1287 ?        S      0:00  \_ nginx: worker process
+   4147 pts/0    S+     0:00  |           \_ grep --color=auto nginx
+   4035 ?        Ss     0:00 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx-first.conf -g daemon                                                                                                   on; master_process on;
+   4037 ?        S      0:00  \_ nginx: worker process
+slab@slab:/etc/nginx$ journalctl -u nginx@first
+Nov 05 13:57:44 slab systemd[1]: Starting nginx@first.service - A high performance web server and a reverse>
+Nov 05 13:57:44 slab nginx[3066]: 2026/11/05 13:57:44 [warn] 3066#3066: conflicting server name "_" on 0.0.>
+Nov 05 13:57:44 slab nginx[3068]: 2026/11/05 13:57:44 [warn] 3068#3068: conflicting server name "_" on 0.0.>
+Nov 05 13:57:44 slab nginx[3068]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 05 13:57:44 slab nginx[3068]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 05 13:57:44 slab nginx[3068]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 05 13:57:44 slab nginx[3068]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 05 13:57:45 slab nginx[3068]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 05 13:57:45 slab nginx[3068]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 05 13:57:45 slab nginx[3068]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 05 13:57:45 slab nginx[3068]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 05 13:57:46 slab nginx[3068]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 05 13:57:46 slab nginx[3068]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 05 13:57:46 slab nginx[3068]: nginx: [emerg] still could not bind()
+Nov 05 13:57:46 slab systemd[1]: nginx@first.service: Control process exited, code=exited, status=1/FAILURE
+Nov 05 13:57:46 slab systemd[1]: nginx@first.service: Failed with result 'exit-code'.
+Nov 05 13:57:46 slab systemd[1]: Failed to start nginx@first.service - A high performance web server and a >
+-- Boot eeb1b6104ed9456485ad963187fb35bf --
+Nov 12 12:16:23 slab systemd[1]: Starting nginx@first.service - A high performance web server and a reverse>
+Nov 12 12:16:23 slab nginx[3803]: 2026/11/12 12:16:23 [warn] 3803#3803: conflicting server name "_" on 0.0.>
+Nov 12 12:16:23 slab nginx[3804]: 2026/11/12 12:16:23 [warn] 3804#3804: conflicting server name "_" on 0.0.>
+Nov 12 12:16:23 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:23 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:23 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:23 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] still could not bind()
+Nov 12 12:16:25 slab systemd[1]: nginx@first.service: Control process exited, code=exited, status=1/FAILURE
+Nov 12 12:16:25 slab systemd[1]: nginx@first.service: Failed with result 'exit-code'.
+Nov 12 12:16:25 slab systemd[1]: Failed to start nginx@first.service - A high performance web server and a >
+Nov 12 12:20:21 slab systemd[1]: Starting nginx@first.service - A high performance web server and a reverse>
+Nov 12 12:20:21 slab systemd[1]: Started nginx@first.service - A high performance web server and a reverse >
+lines 1-37/37 (END)
+Nov 05 13:57:44 slab systemd[1]: Starting nginx@first.service - A high performance web server and a reverse proxy server...
+Nov 05 13:57:44 slab nginx[3066]: 2026/11/05 13:57:44 [warn] 3066#3066: conflicting server name "_" on 0.0.0.0:80, ignored
+Nov 05 13:57:44 slab nginx[3068]: 2026/11/05 13:57:44 [warn] 3068#3068: conflicting server name "_" on 0.0.0.0:80, ignored
+Nov 05 13:57:44 slab nginx[3068]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 05 13:57:44 slab nginx[3068]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 05 13:57:44 slab nginx[3068]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 05 13:57:44 slab nginx[3068]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 05 13:57:45 slab nginx[3068]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 05 13:57:45 slab nginx[3068]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 05 13:57:45 slab nginx[3068]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 05 13:57:45 slab nginx[3068]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 05 13:57:46 slab nginx[3068]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 05 13:57:46 slab nginx[3068]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 05 13:57:46 slab nginx[3068]: nginx: [emerg] still could not bind()
+Nov 05 13:57:46 slab systemd[1]: nginx@first.service: Control process exited, code=exited, status=1/FAILURE
+Nov 05 13:57:46 slab systemd[1]: nginx@first.service: Failed with result 'exit-code'.
+Nov 05 13:57:46 slab systemd[1]: Failed to start nginx@first.service - A high performance web server and a reverse proxy server.
+-- Boot eeb1b6104ed9456485ad963187fb35bf --
+Nov 12 12:16:23 slab systemd[1]: Starting nginx@first.service - A high performance web server and a reverse proxy server...
+Nov 12 12:16:23 slab nginx[3803]: 2026/11/12 12:16:23 [warn] 3803#3803: conflicting server name "_" on 0.0.0.0:80, ignored
+Nov 12 12:16:23 slab nginx[3804]: 2026/11/12 12:16:23 [warn] 3804#3804: conflicting server name "_" on 0.0.0.0:80, ignored
+Nov 12 12:16:23 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:23 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:23 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:23 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:24 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:16:25 slab nginx[3804]: nginx: [emerg] still could not bind()
+Nov 12 12:16:25 slab systemd[1]: nginx@first.service: Control process exited, code=exited, status=1/FAILURE
+Nov 12 12:16:25 slab systemd[1]: nginx@first.service: Failed with result 'exit-code'.
+Nov 12 12:16:25 slab systemd[1]: Failed to start nginx@first.service - A high performance web server and a reverse proxy server.
+Nov 12 12:20:21 slab systemd[1]: Starting nginx@first.service - A high performance web server and a reverse proxy server...
+Nov 12 12:20:21 slab systemd[1]: Started nginx@first.service - A high performance web server and a reverse proxy server.
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+slab@slab:/etc/nginx$
+slab@slab:/etc/nginx$ vi nginx-first.conf
+slab@slab:/etc/nginx$ cat nginx-first.conf
+user www-data;
+worker_processes auto;
+pid /run/nginx-first.pid;
+error_log /var/log/nginx/error.log;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+        worker_connections 768;
+        # multi_accept on;
+}
+
+http {
+
+        ##
+        # Basic Settings
+        ##
+
+        server {
+
+                listen 9001;
+
+        }
+
+        sendfile on;
+        tcp_nopush on;
+        types_hash_max_size 2048;
+        # server_tokens off;
+
+        # server_names_hash_bucket_size 64;
+        # server_name_in_redirect off;
+
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        ##
+        # SSL Settings
+        ##
+
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
+        ssl_prefer_server_ciphers on;
+
+        ##
+        # Logging Settings
+        ##
+
+        access_log /var/log/nginx/access.log;
+
+        ##
+        # Gzip Settings
+        ##
+
+        gzip on;
+
+        # gzip_vary on;
+        # gzip_proxied any;
+        # gzip_comp_level 6;
+        # gzip_buffers 16 8k;
+        # gzip_http_version 1.1;
+        # gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+        ##
+        # Virtual Host Configs
+        ##
+
+        include /etc/nginx/conf.d/*.conf;
+        #       include /etc/nginx/sites-enabled/*;
+}
+
+
+#mail {
+#       # See sample authentication script at:
+#       # http://wiki.nginx.org/ImapAuthenticateWithApachePhpScript
+#
+#       # auth_http localhost/auth.php;
+#       # pop3_capabilities "TOP" "USER";
+#       # imap_capabilities "IMAP4rev1" "UIDPLUS";
+#
+#       server {
+#               listen     localhost:110;
+#               protocol   pop3;
+#               proxy      on;
+#       }
+#
+#       server {
+#               listen     localhost:143;
+#               protocol   imap;
+#               proxy      on;
+#       }
+#}
+slab@slab:/etc/nginx$ ls -l /etc/nginx/conf.d/
+total 0
+slab@slab:/etc/nginx$ ls -l
+total 76
+drwxr-xr-x 2 root root 4096 Nov  5 13:53 conf.d
+-rw-r--r-- 1 root root 1125 Nov 30  2023 fastcgi.conf
+-rw-r--r-- 1 root root 1055 Nov 30  2023 fastcgi_params
+-rw-r--r-- 1 root root 2837 Nov 30  2023 koi-utf
+-rw-r--r-- 1 root root 2223 Nov 30  2023 koi-win
+-rw-r--r-- 1 root root 5465 Nov 30  2023 mime.types
+drwxr-xr-x 2 root root 4096 Oct 24 14:34 modules-available
+drwxr-xr-x 2 root root 4096 Oct 24 14:34 modules-enabled
+-rw-r--r-- 1 root root 1446 Nov 30  2023 nginx.conf
+-rw-r--r-- 1 root root 1488 Nov 12 12:19 nginx-first.conf
+-rw-r--r-- 1 root root 1512 Nov  5 13:57 nginx-second.conf
+-rw-r--r-- 1 root root  180 Nov 30  2023 proxy_params
+-rw-r--r-- 1 root root  636 Nov 30  2023 scgi_params
+drwxr-xr-x 2 root root 4096 Oct 29 18:23 sites-available
+drwxr-xr-x 2 root root 4096 Oct 30 04:26 sites-enabled
+drwxr-xr-x 2 root root 4096 Oct 29 15:28 snippets
+-rw-r--r-- 1 root root  664 Nov 30  2023 uwsgi_params
+-rw-r--r-- 1 root root 3071 Nov 30  2023 win-utf
+slab@slab:/etc/nginx$ sudo nginx -t -c /etc/nginx/nginx-second.conf
+2026/11/12 12:32:06 [warn] 4206#4206: conflicting server name "_" on 0.0.0.0:80, ignored
+nginx: the configuration file /etc/nginx/nginx-second.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx-second.conf test is successful
+slab@slab:/etc/nginx$ sudo nginx -t -c /etc/nginx/nginx.conf
+2026/11/12 12:32:14 [warn] 4214#4214: conflicting server name "_" on 0.0.0.0:80, ignored
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+slab@slab:/etc/nginx$ sudo nginx -t -c /etc/nginx/nginx-first.conf
+nginx: the configuration file /etc/nginx/nginx-first.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx-first.conf test is successful
+slab@slab:/etc/nginx$ sudo nginx -T -c /etc/nginx/nginx-second.conf 2>&1 | grep -nE 'listen|server_name|configuration file'
+2:nginx: the configuration file /etc/nginx/nginx-second.conf syntax is ok
+3:nginx: configuration file /etc/nginx/nginx-second.conf test is successful
+4:# configuration file /etc/nginx/nginx-second.conf:
+24:                listen 9002;
+33:     # server_names_hash_bucket_size 64;
+34:     # server_name_in_redirect off;
+83:#            listen     localhost:110;
+89:#            listen     localhost:143;
+95:# configuration file /etc/nginx/mime.types:
+198:# configuration file /etc/nginx/sites-enabled/default:
+201:# of Nginx configuration files in order to fully unleash the power of Nginx.
+210:# This file will automatically load configuration files provided by other
+220:    listen 80 default_server;
+221:    listen [::]:80 default_server;
+225:    # listen 443 ssl default_server;
+226:    # listen [::]:443 ssl default_server;
+244:    server_name _;
+278:#   listen 80;
+279:#   listen [::]:80;
+281:#   server_name example.com;
+291:# configuration file /etc/nginx/sites-enabled/otus-repo:
+294:    listen 80;
+295:    server_name _;
+slab@slab:/etc/nginx$ vi nginx
+nginx.conf         nginx-first.conf   nginx-second.conf
+slab@slab:/etc/nginx$ sudo vi nginx-first.conf
+slab@slab:/etc/nginx$ sudo vi nginx-second.conf.conf
+slab@slab:/etc/nginx$ sudo vi nginx-second.conf
+slab@slab:/etc/nginx$ sudo systemctl daemon-reload
+slab@slab:/etc/nginx$ history
+    1  exit
+    2  hostnamectl
+    3  fmouun
+    4  fmount
+    5  lsblk
+    6  blkid
+    7  mount
+    8  tmux new
+    9  txux attach || tmux new
+   10  zfs
+   11  sudo apt install zfs-fuse -y
+   12  df -hT
+   13  zfs
+   14  sudo zfs
+   15  df -hT
+   16  zpool create TT
+   17  sudo -i
+   18  tmux attach || tmux new
+   19  df -hT
+   20  lsblk
+   21  sudo -i
+   22  zpool status
+   23  sudo -i
+   24  zpool status
+   25  sudo -i
+   26  mnt
+   27  mount
+   28  ip -br a
+   29  vi /etc/netplan/50-cloud-init.yaml
+   30  sudo vi /etc/netplan/50-cloud-init.yaml
+   31  ip route
+   32  sudo -i
+   33  ip -br a
+   34  vi /etc/nep
+   35  sudo vi /etc/netplan/50-cloud-init.yaml
+   36  netplan try
+   37  sudo netplan try
+   38  ls -l /run/netplan/netplan-try.ready
+   39  sudo rm  /run/netplan/netplan-try.ready
+   40  sudo ls -l  /run/netplan/netplan-try.ready
+   41  sudo netplan try
+   42  mount | grep mnt
+   43  df -hT
+   44  df -hT | grep mnt
+   45  cat /etc/fstab
+   46  vi /etc/fstab
+   47  sudo vi /etc/fstab
+   48  sudo -i
+   49  sudo vi /etc/netplan/50-cloud-init.yaml
+   50  ip -br a
+   51  ping 172.29.16.1
+   52  ip -br a
+   53  ping 1ping 17229.241008
+   54  ping  172.29.24.108
+   55  netplan status
+   56  netplan get
+   57  sudo netplan get
+   58  sudo netplan generate
+   59  netplan status
+   60  systemctl status
+   61  systemctl list-units
+   62  systemctl status systemd-networkd-wait-online.service
+   63  systemctl status systemd-networkd-wait-online.service
+   64  netplan status
+   65  cp /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml.cp
+   66  sudo cp /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml.cp
+   67  sudo vi /etc/netplan/50-cloud-init.yaml
+   68  sudo netplan generate
+   69  sudo netplan status
+   70  sudo systemctl daemon-reload
+   71  sudo netplan status
+   72  sudo netplan try
+   73  ip route
+   74  sudo netplan status
+   75  ip -br a
+   76  sudo cp /etc/netplan/50-cloud-init.yaml.cp /etc/netplan/50-cloud-init.yaml
+   77  sudo vi /etc/netplan/50-cloud-init.yaml
+   78  sudo netplan status
+   79  systemctl daemon-reload
+   80  sudo netplan try
+   81  netplan status
+   82  init 6
+   83  i -br a
+   84  ip -br a
+   85  ping ya.ru
+   86  sudo vi /etc/netplan/50-cloud-init.yaml
+   87  ping 192.29.16.1
+   88  sudo vi /etc/netplan/50-cloud-init.yaml
+   89  sudo netplan try
+   90  ip -br a
+   91  ip route
+   92  systemctl daemon-reload
+   93  sudo netplan try
+   94  sudo netplan apply
+   95  ip route
+   96  sudo vi /etc/netplan/50-cloud-init.yaml
+   97  sudo netplan try
+   98  ip route
+   99  ping ya.ru
+  100  ping 1.1.1.1
+  101  ping ya.ru
+  102  init 6
+  103  mount | grep mnt
+  104  df -hT
+  105  df -hT | grep mnt
+  106  cat /etc/fstab
+  107  ip -br a
+  108  mount -av
+  109  cat /etc/fstab
+  110  df -hT | grep mnt
+  111  systemctl start mnt.mount
+  112  df -hT | grep mnt
+  113  umount /mnt
+  114  sudo umount /mnt
+  115  df -hT | grep mnt
+  116  systemctl status mnt.mount
+  117  df -hT | grep mnt
+  118  init 6
+  119  sudo init 6
+  120  df -hT | grep mnt
+  121  ls -l /mnt/
+  122  df -hT | grep mnt
+  123  echo Hi,it's the end >> /mnt/27102026.txt
+  124  echo "Hi,it's the end" >> /mnt/27102026.txt
+  125  sudo echo "Hi,it's the end" >> /mnt/27102026.txt
+  126  ls -l /mnt/27102026.txt
+  127  cat /mnt/upload/check_file
+  128  ls -l /mnt/upload/check_file
+  129  sudo -i
+  130  cat /mnt/upload/check_file_v2
+  131  touch /mnt/upload/client_file
+  132  echo "This's cli_file"  >> /mnt/upload/client_file
+  133  vi /etc/hosts
+  134  vi /etc/netplan/50-cloud-init.yaml
+  135  sudo cat  /etc/netplan/50-cloud-init.yaml
+  136  sudo apt install -y     nginx     dpkg-dev     reprepro     gnupg     curl     wget     nano     ca-certificates
+  137  sudo systemctl status nginx
+  138  curl http://localhost
+  139  curl 2i.io
+  140  curl -i 2i.io
+  141  curl -i https://2ip.io
+  142  curl  https://2ip.io
+  143  curl -i  https://2ip.io
+  144  mkdir -p ~/hello-otus-build/DEBIAN
+  145  mkdir -p ~/hello-otus-build/usr/bin
+  146  cd ~/hello-otus-build/usr/bin
+  147  vi ~/hello-otus-build/usr/bin/hello-otus
+  148  chmod 755 hello-otus
+  149  echo $?
+  150  sl -l
+  151  ls -l
+  152  cat hello-otus
+  153  vi ~/hello-otus-build/DEBIAN/control
+  154  cd ..
+  155  ls -l
+  156  ls -l hello-otus-build/*
+  157  dpkg-deb --build hello-otus-build/ hello-otus_1.0.0_all.deb
+  158  ls -l
+  159  cd hello-otus-build/
+  160  ls -l
+  161  ls -l *
+  162  vi
+  163  vi DEBIAN/
+  164  source ./usr/bin/hello-otus
+  165  cd ..
+  166  ls -l
+  167  dpkg-deb --info hello-otus_1.0.0_all.deb
+  168  sudo apt install ./hello-otus_1.0.0_all.deb
+  169  sudo -i
+  170  vi /etc/
+  171  cat /etc/fstab
+  172  history
+  173  history | less
+  174  cat /etc/fstab
+  175  sudo mkdir -p /srv/apt-repo/conf
+  176  sudo mkdir -p /srv/apt-repo/public
+  177  cat /etc/os-release
+  178  sudo vi /srv/apt-repo/conf/distributions
+  179  gpg --full-generate-key
+  180  gpg --list-secret-keys --keyid-format LON
+  181  gpg --list-secret-keys --keyid-format slab
+  182  gpg --list-secret-keys --keyid-format LONG
+  183  gpg --armor --export admin@example.com     | sudo tee /srv/apt-repo/public/otus-repo.asc >/dev/nul
+  184  sudo gpg --armor --export admin@example.com     | sudo tee /srv/apt-repo/public/otus-repo.asc >/dev/nul
+  185  sudo -i
+  186  sudo reprepro -b /srv/apt-repo includedeb noble     ~/hello-otus_1.0.0_all.deb
+  187  sudo reprepro -b /srv/apt-repo includedeb noble ~/hello-otus_1.0.0_all.deb
+  188  sudo vi /srv/apt-repo/conf/distributions
+  189  sudo reprepro -b /srv/apt-repo includedeb noble ~/hello-otus_1.0.0_all.deb
+  190  hostnamectl
+  191  uname -a
+  192  sudo reprepro -b /srv/apt-repo includedeb noble ~/hello-otus_1.0.0_all.deb
+  193  sudo vi /srv/apt-repo/conf/distributions
+  194  sudo reprepro -b /srv/apt-repo includedeb noble ~/hello-otus_1.0.0_all.deb
+  195  echo $?
+  196  sudo reprepro -b /srv/apt-repo list noble
+  197  sudo mkdir -p /var/www/html/repo
+  198  sudo rsync -a     --exclude='conf/'     --exclude='db/'     /srv/apt-repo/ /var/www/html/repo/
+  199  sudo vi /etc/nginx/sites-available/otus-repo
+  200  sudo ln -s /etc/nginx/sites-available/otus-repo     /etc/nginx/sites-enabled/otus-repo
+  201  nginx -t
+  202  sudo nginx -t
+  203  sudo vi /etc/nginx/sites-available/otus-repo
+  204  sudo vi /etc/nginx/sites-available/default
+  205  sudo vi /etc/nginx/sites-available/otus-repo
+  206  sudo nginx -t
+  207  sudo vi /etc/nginx/sites-available/default
+  208  curl -i http://localserver
+  209  curl -i http://localhost
+  210  curl -i http://localhost | grep 200
+  211  curl -i http://localhost
+  212  nginx -t
+  213  sudo nginx -t
+  214  sudo vi /etc/nginx/nginx.conf
+  215  sudo vi /etc/nginx/sites-available/otus-repo
+  216  systemctl reload nginx.service
+  217  hostname -I
+  218  hostname -
+  219  hostname
+  220  curl -I http://localhost/repo/dists/noble/Release
+  221  curl -i http://localhost/repo/dists/noble/Release
+  222  curl -I http://localhost/repo/dists/noble/Release
+  223  curl  http://localhost/repo/dists/noble/Release
+  224  curl -I  http://localhost/repo/dists/noble/Release
+  225  curl -I  http://localhost/
+  226  curl   http://localhost/
+  227  curl   http://localhost/repo/
+  228  curl -I  http://localhost/repo/dists/noble/Release
+  229  ls -l
+  230  ls -l hello-otus/*
+  231  ls -l hello-otus/
+  232  ls -l
+  233  cat hello-otus-build/DEBIAN/control
+  234  ls -l
+  235  rm hello-otus_1.0.0_all.deb
+  236  dpkg-deb --build hello-otus-build hello-otus_1.0.0_all.deb
+  237  ls -l
+  238  dpkg-deb --info  hello-otus_1.0.0_all.deb
+  239  sudo apt install ./hello-otus_1.0.0_all.deb
+  240  hello-otus
+  241  dpkg -l hello-otus
+  242  ls -l /srv/apt-repo/*
+  243  ls -l /srv/apt-repo/conf/distributions
+  244  vi /srv/apt-repo/conf/distributions
+  245  cat /srv/apt-repo/conf/distributions
+  246  ls -l /srv/apt-repo/*
+  247  sudo reprepro -b /srv/apt-repo includedeb noble     ~/hello-otus_1.0.0_all.deb
+  248  sudo reprepro -b /srv/apt-repo includedeb noble ~/hello-otus_1.0.0_all.deb
+  249  sudo reprepro -b /srv/apt-repo list noble
+  250  cd /var/www/html/repo/
+  251  ls -l
+  252  sudo rsync -a  --exclude='conf/' --exclude='db/' /srv/apt-repo/ /var/www/html/repo/
+  253  rsync --help
+  254  cat /etc/nginx/sites-available/otus-repo
+  255  man ln
+  256  sudo ln -s /etc/nginx/sites-available/otus-repo     /etc/nginx/sites-enabled/otus-repo
+  257  ls -l /etc/nginx//sites-enabled/
+  258  rm /etc/nginx//sites-enabled/otus-repo
+  259  sudo rm /etc/nginx//sites-enabled/otus-repo
+  260  sudo ln -s  /etc/nginx/sites-available/otus-repo /etc/nginx/sites-enabled/otus-repo
+  261  nginx -t
+  262  sudo nginx -t
+  263  sudo systemctl reload nginx.service
+  264  curl -I https://localhost/repo/dists/noble/Release
+  265  curl -I http://localhost/repo/dists/noble/Release
+  266  curl -I http://localhost/repo/
+  267  curl  http://localhost/repo/
+  268  sudo curl  http://localhost/repo/
+  269  curl -I http://localhost/repo/dists/noble/Release
+  270  cd ~
+  271  cat /etc/netplan/50-cloud-init.yaml
+  272  sudo cat /etc/netplan/50-cloud-init.yaml
+  273  init 6
+  274  sudo init 6
+  275  vi /etc/default/grub
+  276  sudo vi /etc/default/grub
+  277  update-grub
+  278  sudo update-grub
+  279  cat vi /etc/default/grub | grep hidden
+  280  init 6
+  281  sudo init 6
+  282  ip -br a
+  283  ping ya.ru
+  284  ip -br a
+  285  netplan
+  286  netplan status
+  287  ping 172.29.16.1
+  288  ufw status
+  289  sudo ufw status
+  290  cat /etc/default/grub
+  291  vi /etc/default/grub
+  292  init
+  293  man init
+  294  runlevel
+  295  update
+  296  uptime
+  297  init 0
+  298  sudo init 0
+  299  runlevel
+  300  vi /etc/default/grub
+  301  init 0
+  302  sudo -i
+  303  su -
+  304  init 0
+  305  su -
+  306  ping ya.ru
+  307  ping 1.1.1.1
+  308  ip -br a
+  309  ip route
+  310  ping 172.29.16.1
+  311  ping ya.ru
+  312  nslookup ya.ru
+  313  nslookup google.com
+  314  ping 1.1.1.1
+  315  curl -I 2ip.ru
+  316  hostnamectl
+  317  cat /etc/machine-id
+  318  cat /etc/host
+  319  cat /etc/hostname
+  320  vgs
+  321  sudo -i
+  322  lvm vgscan
+  323  sudo lvm vgscan
+  324  vgscan
+  325  sudo lvm vgchange ubuntu-vg -ay
+  326  sudo lvm vgscan
+  327  vi /etc/fstab
+  328  blkid
+  329  blkid
+  330  cat /etc/fstab
+  331  vgs
+  332  sudo vgs
+  333  vgrename ubuntu-vg ubuntu-otus
+  334  sudo vgrename ubuntu-vg ubuntu-otus
+  335  update-grub
+  336  sudo update-grub
+  337  /usr/sbin/grub-probe
+  338  /usr/sbin/grub-probe
+  339  vi /usr/sbin/grub-probe
+  340  type /usr/sbin/grub-probe
+  341  stat /usr/sbin/grub-probe
+  342  update-grub
+  343  sudo update-grub
+  344  grep -R "ubuntu--vg" /
+  345  sudo grep -R "ubuntu--vg" /
+  346  sudo grep -R "ubuntu--vg" / 2> /dev/null
+  347  vi /
+  348  sudo grep -R "watchlog" /etc
+  349  sudo grep -R "watchlog" /etc 2> /dev/null
+  350  sudo grep -R "Unit" /etc 2> /dev/null
+  351  su -
+  352  ls -l
+  353  ls -l hello-otus-build/*
+  354  set | grep paths
+  355  su -
+  356  ip route
+  357  cat /etc/netplan/50-cloud-init.yaml
+  358  sudo cat /etc/netplan/50-cloud-init.yaml
+  359  cat /etc/resolv.conf
+  360  ufw status
+  361  sudo ufw status
+  362  cp /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml.2_11cp
+  363  cat
+  364  cat /etc/netplan/50-cloud-init.yamlcp
+  365  cat /etc/netplan/50-cloud-init.yaml.cp
+  366  sudo cat /etc/netplan/50-cloud-init.yaml.cp
+  367  vi /etc/netplan/50-cloud-init.yaml
+  368  sudo vi /etc/netplan/50-cloud-init.yaml
+  369  sudo cat /etc/netplan/50-cloud-init.yaml
+  370  systemctl daemon-reload
+  371  netplan try
+  372  sudo netplan try
+  373  netplan status
+  374  ip -br a
+  375  cat /etc/netplan/50-cloud-init.yaml
+  376  sudo cat /etc/netplan/50-cloud-init.yaml
+  377  ip -br a
+  378  sudo vi /etc/netplan/50-cloud-init.yaml
+  379  netplan try
+  380  sudo netplan try
+  381  netplan status
+  382  ip -br a
+  383  netplan try
+  384  sudo netplan try
+  385  ip -br a
+  386  while true ip -br a
+  387  while true; ip -br a:
+  388  while true; ip -br a
+  389  ip -br a
+  390  mv /etc/netplan/50-cloud-init.yaml.2_11cp /etc/netplan/50-cloud-init.yaml
+  391  sudo vi /etc/netplan/50-cloud-init.yaml
+  392  :q
+  393  vi /etc/netplan/50-cloud-init.yaml.2_11cp
+  394  sudo vi /etc/netplan/50-cloud-init.yaml.2_11cp
+  395  sudo ls -l /etc/netplan/50-cloud-init.yaml*
+  396  sudo rm  /etc/netplan/50-cloud-init.yaml
+  397  sudo mv  /etc/netplan/50-cloud-init.yaml.2_11cp /etc/netplan/50-cloud-init.yaml
+  398  sudo vi  /etc/netplan/50-cloud-init.yaml
+  399  netplan try
+  400  sudo netplan try
+  401  ping 1.1.1.1
+  402  ip route
+  403  ping 172.29.16.1
+  404  ping 1.1.1.1
+  405  cat /etc/resolv.conf
+  406  resolvctl]
+  407  resolvctl
+  408  resolvconf
+  409  resolvectl
+  410  sudo resolvectl
+  411  history
+  412  %381
+  413  sudo vi  /etc/netplan/50-cloud-init.yaml
+  414  sudo cp  /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml.cp
+  415  sudo vi  /etc/netplan/50-cloud-init.yaml
+  416  netplan try
+  417  sudo netplan try
+  418  ip -br a
+  419  init 6
+  420  echo $PPID
+  421  echo $$
+  422  exit
+  423  cat /etc/fstab
+  424  alias
+  425  which ll
+  426  where lvm
+  427  where python
+  428  lvs
+  429  sudo lvs
+  430  runlevel
+  431  runlevel
+  432  set
+  433  man sed
+  434  man sed
+  435  echo $PPID
+  436  echo $$
+  437  bash
+  438  echo $$PPID
+  439  echo $PPID
+  440  grep --help
+  441  man grep
+  442  vi .bash_profi
+  443  ping ya.ru
+  444  cat /etc/default/watchlog
+  445  vi /var/log/watchlog.log
+  446  history
+  447  vi /var/log/watchlog.log
+  448  ls -l /var/log/watchlog.log
+  449  ls -l /var/log/watchlog.log*
+  450  ls -l /var/log/*
+  451  ls -la /var/log/watchlog.log*
+  452  ls -la /var/log/w
+  453  ls -la /var/log/
+  454  sudo vi /var/log/watchlog.log
+  455  cat /opt/watchlog.sh
+  456  . /opt/watchlog.sh
+  457  source /opt/watchlog.sh
+  458  cat /opt/watchlog.sh
+  459  sudo vi /opt/watchlog.sh
+  460  source /opt/watchlog.sh
+  461  bash /opt/watchlog.sh
+  462  bash /opt/watchlog.sh ALERT /var/log/watchlog.log
+  463  source  /opt/watchlog.sh ALERT /var/log/watchlog.log
+  464  source /opt/watchlog.sh ALERT /var/log/watchlog.log
+  465  echo $?
+  466  cat /opt/watchlog.sh || ALERT /var/log/watchlog.log
+  467  /opt/watchlog.sh ALERT /var/log/watchlog.log
+  468  grep ALERT /var/log/watchlog.log
+  469  vi /opt/watchlog.sh || ALERT /var/log/watchlog.log
+  470  sudo vi /opt/watchlog.sh || ALERT /var/log/watchlog.log
+  471  source /opt/watchlog.sh ALERT /var/log/watchlog.log
+  472  bash /opt/watchlog.sh ALERT /var/log/watchlog.log
+  473  exit
+  474  tailj -n 1000 /var/log/sys
+  475  tail -n 1000 /var/log/syslog
+  476  tail -n 1000 /var/log/syslog  | grep word
+  477  tail -n 1000 /var/log/syslog  | grep "I found"
+  478  cat /etc/systemd/system/watchlog.timer
+  479  cat /etc/systemd/system/watchlog.service
+  480  tail -n 1000 /var/log/syslog  | grep "I found"
+  481  exit
+  482  vi /etc/netplan/50-cloud-init.yaml
+  483  sudo vi /etc/netplan/50-cloud-init.yaml
+  484  ls -l
+  485  cat pr_work_1.sh
+  486  printenv
+  487  cat /etc/default/watchlog
+  488  cat /var/log/watchlog.log
+  489  cat /opt/watchlog.sh
+  490  ls -l
+  491  chmod +x /opt/watchlog.sh
+  492  sudo chmod +x /opt/watchlog.sh
+  493  cat /etc/systemd/system/watchlog.service
+  494  cat /etc/systemd/system/watchlog.timer
+  495  ls -l /etc/default/watchlog
+  496  cat /etc/default/watchlog
+  497  cat /etc/systemd/system/watchlog.service
+  498  cat /opt/watchlog.sh
+  499  ls -l /opt/watchlog.sh
+  500  systemctl start watchlog.timer
+  501  systemctl status watchlog.timer
+  502  systemctl status watchlog.service
+  503  systemctl cat watchlog.service
+  504  systemctl cat watchlog.service | awk {'print $0'}
+  505  systemctl cat watchlog.service | awk {'print $1'}
+  506  systemctl cat watchlog.service | awk {'print $5'}
+  507  systemctl cat watchlog.service | awk {'print $4'}
+  508  systemctl cat watchlog.service | awk {'print $2'}
+  509  systemctl cat watchlog.service | awk {'print $1'}
+  510  systemctl cat watchlog.service | awk {'print $@'}
+  511  systemctl cat watchlog.service | awk {'print $0'}
+  512  systemctl vi watchlog.service
+  513  systemctl cat watchlog.service | sed -n "1p"
+  514  echo $(systemctl cat watchlog.service | sed -n "1p")
+  515  vi /etc/systemd/system/watchlog.service
+  516  sudo vi /etc/systemd/system/watchlog.service
+  517  systemctl daemon-reload
+  518  systemctl status watchlog.service
+  519  systemctl start watchlog.service
+  520  systemctl status watchlog.service
+  521  df -hT
+  522  systemctl status watchlog.service
+  523  systemctl status watchlog.timer
+  524  sudo apt install  spawn-fcgi php php-cgi php-cli apache2 libapache2-mod-fcgid -y
+  525  cat /opt/watchlog.sh
+  526  bash /opt/watchlog.sh
+  527  echo $?
+  528  cat /etc/default/watchlog
+  529  ls -l /etc/default/watchlog
+  530  type /etc/default/watchlog
+  531  whereis BASH
+  532  whereis bash
+  533  whereis -b bash
+  534  cat /etc/systemd/system/watchlog.service
+  535  cat /etc/systemd/system/watchlog.timer
+  536  ls -l /etc/default/watchlog
+  537   /etc/default/watchlog
+  538  cat /opt/watchlog.sh
+  539  vi /opt/watchlog.sh
+  540  sudo vi /opt/watchlog.sh
+  541  cat /opt/watchlog.sh
+  542  tmux attach || tmux new
+  543  cat /opt/watchlog.sh
+  544  cd /usr/local/bin/
+  545  ls -l
+  546  sudo vi pr_work_1.sh
+  547  cat pr_work_1.sh
+  548  ls -l
+  549  bash pr_work_1.sh
+  550  vi pr_work_1.sh
+  551  sudo vi pr_work_1.sh
+  552  bash pr_work_1.sh
+  553  sudo vi pr_work_1.sh
+  554  bash pr_work_1.sh
+  555  sudo vi pr_work_1.sh
+  556  bash pr_work_1.sh
+  557  sudo vi pr_work_1.sh
+  558  bash pr_work_1.sh
+  559  sudo vi pr_work_1.sh
+  560  bash pr_work_1.sh
+  561  sudo vi pr_work_1.sh
+  562  bash pr_work_1.sh
+  563  cat pr_work_1.sh
+  564  vi pr_work_1.sh
+  565  sudo vi pr_work_1.sh
+  566  bash pr_work_1.sh
+  567  sudo vi pr_work_1.sh
+  568  bash pr_work_1.sh
+  569  cat pr_work_1.sh
+  570  sudo vi pr_work_1.sh
+  571  bash pr_work_1.sh
+  572  cat pr_work_1.sh
+  573  vi pr_work_1.sh
+  574  sudo vi pr_work_1.sh
+  575  cat pr_work_1.sh
+  576  sudo vi pr_work_1.sh
+  577  sudo vi pr_work_1.sh.sw
+  578  sudo vi pr_work_1.sh.swp
+  579  sudo vi .pr_work_1.sh.swp
+  580  sudo vi pr_work_1.sh
+  581  ls -la
+  582  vi pr_work_1.sh
+  583  sudo vi pr_work_1.sh
+  584  sudo vi -r pr_work_1.sh
+  585  sudo vi  pr_work_1.sh
+  586  sudo vim -r pr_work_1.sh
+  587  ls -l
+  588  ls -la
+  589  sudo vi pr_work_1.sh
+  590  cat pr_work_1.sh
+  591  bash pr_work_1.sh
+  592  cat pr_work_1.sh
+  593  sudo vi pr_work_1.sh
+  594  rm .pr_work_1.sh.swp
+  595  sudo rm .pr_work_1.sh.swp
+  596  sudo vi pr_work_1.sh
+  597  sudo vi pr_work_1.sh TEST
+  598  bash pr_work_1.sh TEST
+  599  sudo vi pr_work_1.sh
+  600  ls -l
+  601  PWD
+  602  $PWD
+  603  BASH
+  604  bash
+  605  history
+  606  sudo apt install spawn-fcgi php php-cgi php-cli  apache2 libapache2-mod-fcgid -y
+  607  sudo apt search --names-only git
+  608  sudo apt search --names-only ^git
+  609  sudo apt search --names-only ^git$
+  610  sudo apt install git
+  611  git --verison
+  612  git
+  613  git --help
+  614  git status
+  615  git --config global
+  616  git --config
+  617  git --config all
+  618  git --config a
+  619  man git
+  620  git --config
+  621  git --config global
+  622  git -a
+  623  ls -l
+  624  git clone https://gist.github.com/cea2k/1318020
+  625  git clone https://github.com/sk-vladislav26/OTUS.git
+  626  ls -l
+  627  vi OTUS/
+  628  exit
+  629  ls -l
+  630  vi OTUS/
+  631  mkdir php_cgi
+  632  cd php_cgi/
+  633  git clone https://gist.github.com/1318020.git
+  634  ls -l
+  635  vi 1318020/
+  636  tmux attach || tmux new
+  637  docker ps
+  638  mdadm --stat
+  639  mdstat -D
+  640  mdstat -d
+  641  cat /proc/mdstat
+  642  lsblk
+  643  df -hT
+  644  zpool status
+  645  cat /etc/default/watchlog
+  646  cat /var/log/watchlog.log
+  647  cat /opt/watchlog.sh
+  648  ls -l /opt/watchlog.sh
+  649  cat /etc/systemd/system/watchlog.service
+  650  systemctl status watchlog.timer
+  651  systemctl status watchlog.service
+  652  tail -n 1000 /var/log/syslog  | grep word
+  653  tail -n 1000 /var/log/syslog  | grep ALERT
+  654  tail -n 1000 /var/log/syslog  | grep ALERT"
+  655  tail -n 1000 /var/log/syslog  | grep "ALERT"
+  656  systemctl status watchlog.timer
+  657  systemctl status watchlog.service
+  658  systemctl status watchlog.timer
+  659  systemctl start watchlog.timer
+  660  systemctl status watchlog.timer
+  661  systemctl status watchlog.service
+  662  systemctl status watchlog.timer
+  663  systemctl status watchlog.service
+  664  systemctl enable --now  watchlog.service
+  665  systemctl status watchlog.service
+  666  systemctl status watchlog.timer
+  667  systemctl cat watchlog.service
+  668  systemctl status watchlog.service
+  669  systemctl status watchlog.service
+  670  tail -n 1000 /var/log/syslog  | grep "ALERT"
+  671  tail -n 1000 /var/log/syslog  | grep word
+  672  apt install spawn-fcgi php php-cgi php-cli  apache2 libapache2-mod-fcgid -y
+  673  sudo apt install spawn-fcgi php php-cgi php-cli  apache2 libapache2-mod-fcgid -y
+  674  git --version
+  675  git clone https://gist.github.com/cea2k/1318020
+  676  ls -l
+  677  ls -l 1318020/
+  678  cat /etc/spawn-fcgi/fcgi.conf
+  679  cat /etc/systemd/system/spawn-fcgi.service
+  680  ls -l
+  681  vi 1318020/
+  682  systemctl status spawn-fcgi.service
+  683  systemctl start spawn-fcgi.service
+  684  systemctl status spawn-fcgi.service
+  685  sudo apt install nginx -y
+  686  cat /etc/systemd/system/nginx@.service
+  687  vi /etc/nginx/nginx.conf
+  688  cat /etc/nginx/
+  689  cd /etc/nginx/
+  690  vi nginx-first.conf
+  691  vi nginx.conf
+  692  vi nginx-first.conf
+  693  vi nginx-second.conf.conf
+  694  vi nginx-second.conf
+  695  sdiff nginx-second.conf nginx-first.conf
+  696  sdiff -s nginx-second.conf nginx-first.conf
+  697* nf nginx.conf
+  698  sdiff -s nginx.conf nginx-first.conf
+  699  array = ["first" "second"]
+  700  array == ["first" "second"]
+  701  array @= ["first" "second"]
+  702  array = ("first" "second")
+  703  array = ("first", "second")
+  704  array = ()
+  705  array = []
+  706* array=(è)
+  707  array=("first", "second")
+  708  array=("first" "second")
+  709  echo ${}"
+  710  echo "${array[@]}"
+  711  echo "${!array[@]}"
+  712  echo "${#array[@]}"
+  713  echo "${array[*]}"
+  714  f
+  715  for i in "${array[@]}";do echo i
+  716  for i in "${array[@]}";do echo i;done
+  717  for i in "${array[@]}";do echo $i;done
+  718  for i in "${array[@]}";do systemctl status nging@$i;done
+  719  for i in "${array[@]}";do systemctl status nginx@$i;done
+  720  for i in "${array[@]}";do systemctl status nginx@$i; echo $i ;done
+  721  for i in "${array[@]}";do systemctl status nginx@$i; systemctl start nginx@$i; echo "-------------" ;done
+  722  for i in "${array[@]}";do systemctl status nginx@$i; echo $i ;done
+  723  vi nginx.conf
+  724  for i in "${array[@]}";do systemctl status nginx@$i; echo $i ;done
+  725  vi nginx-first.conf
+  726  vi nginx-first.conf
+  727  sudo vi nginx-first.conf
+  728  systemctl daemon-reload
+  729  for i in "${array[@]}";do systemctl status nginx@$i; systemctl start nginx@$i; echo "-------------" ;done
+  730  sudo journalctl -xeu nginx@second.service
+  731  sudo grep -Rn "listen" /etc/nginx/sites-enabled/
+  732  sudo nginx -t -c /etc/nginx/nginx-second.conf
+  733  ss -tulpn state listening
+  734  ss -tulpn state listening | grep 80
+  735  ss -tulpn state listening
+  736  ss -t state listening
+  737  ss --help
+  738  ss -t state listening
+  739  ss -tulp state listening
+  740  ss -tp state listening
+  741  ps afx | grep nginx
+  742  journalctl -u nginx@first
+  743  vi nginx-first.conf
+  744  cat nginx-first.conf
+  745  ls -l /etc/nginx/conf.d/
+  746  ls -l
+  747  sudo nginx -t -c /etc/nginx/nginx-second.conf
+  748  sudo nginx -t -c /etc/nginx/nginx.conf
+  749  sudo nginx -t -c /etc/nginx/nginx-first.conf
+  750  sudo nginx -T -c /etc/nginx/nginx-second.conf 2>&1 | grep -nE 'listen|server_name|configuration file'
+  751  sudo vi nginx-first.conf
+  752  sudo vi nginx-second.conf.conf
+  753  sudo vi nginx-second.conf
+  754  sudo systemctl daemon-reload
+  755  history
+slab@slab:/etc/nginx$ !721
+for i in "${array[@]}";do systemctl status nginx@$i; systemctl start nginx@$i; echo "-------------" ;done
+? nginx@first.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: active (running) since Thu 2026-11-12 12:20:21 UTC; 24min ago
+       Docs: man:nginx(8)
+   Main PID: 4035 (nginx)
+      Tasks: 2 (limit: 978)
+     Memory: 1.7M (peak: 1.9M)
+        CPU: 4ms
+     CGroup: /system.slice/system-nginx.slice/nginx@first.service
+             +-4035 "nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx-first.conf -g daemon on; master_process on;"
+             L-4037 "nginx: worker process"
+
+Nov 12 12:20:21 slab systemd[1]: Starting nginx@first.service - A high performance web server and a reverse proxy server...
+Nov 12 12:20:21 slab systemd[1]: Started nginx@first.service - A high performance web server and a reverse proxy server.
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ====
+Authentication is required to start 'nginx@first.service'.
+Authenticating as: slab
+Password:
+==== AUTHENTICATION COMPLETE ====
+-------------
+? nginx@second.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2026-11-12 12:20:27 UTC; 24min ago
+       Docs: man:nginx(8)
+        CPU: 7ms
+
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:26 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:27 slab nginx[4056]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Nov 12 12:20:27 slab nginx[4056]: nginx: [emerg] bind() to [::]:80 failed (98: Address already in use)
+Nov 12 12:20:27 slab nginx[4056]: nginx: [emerg] still could not bind()
+Nov 12 12:20:27 slab systemd[1]: nginx@second.service: Control process exited, code=exited, status=1/FAILURE
+Nov 12 12:20:27 slab systemd[1]: nginx@second.service: Failed with result 'exit-code'.
+Nov 12 12:20:27 slab systemd[1]: Failed to start nginx@second.service - A high performance web server and a reverse proxy server.
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ====
+Authentication is required to start 'nginx@second.service'.
+Authenticating as: slab
+Password:
+==== AUTHENTICATION COMPLETE ====
+-------------
+slab@slab:/etc/nginx$ systemctl status
+Display all 662 possibilities? (y or n)
+slab@slab:/etc/nginx$ systemctl status nginx@second.service
+? nginx@second.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: active (running) since Thu 2026-11-12 12:44:33 UTC; 17s ago
+       Docs: man:nginx(8)
+    Process: 4535 ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/nginx-second.conf -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+    Process: 4537 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx-second.conf -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+   Main PID: 4538 (nginx)
+      Tasks: 2 (limit: 978)
+     Memory: 1.7M (peak: 1.9M)
+        CPU: 7ms
+     CGroup: /system.slice/system-nginx.slice/nginx@second.service
+             +-4538 "nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx-second.conf -g daemon on; master_process on;"
+             L-4540 "nginx: worker process"
+
+Nov 12 12:44:33 slab systemd[1]: Starting nginx@second.service - A high performance web server and a reverse proxy server...
+Nov 12 12:44:33 slab systemd[1]: Started nginx@second.service - A high performance web server and a reverse proxy server.
+slab@slab:/etc/nginx$ systemctl status nginx@first.service
+? nginx@first.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: active (running) since Thu 2026-11-12 12:20:21 UTC; 24min ago
+       Docs: man:nginx(8)
+   Main PID: 4035 (nginx)
+      Tasks: 2 (limit: 978)
+     Memory: 1.7M (peak: 1.9M)
+        CPU: 4ms
+     CGroup: /system.slice/system-nginx.slice/nginx@first.service
+             +-4035 "nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx-first.conf -g daemon on; master_process on;"
+             L-4037 "nginx: worker process"
+
+Nov 12 12:20:21 slab systemd[1]: Starting nginx@first.service - A high performance web server and a reverse proxy server...
+Nov 12 12:20:21 slab systemd[1]: Started nginx@first.service - A high performance web server and a reverse proxy server.
+slab@slab:/etc/nginx$ systemctl status nginx@.service
+Failed to get properties: Unit name nginx@.service is neither a valid invocation ID nor unit name.
+slab@slab:/etc/nginx$ systemctl status nginx@service
+0 nginx@service.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/etc/systemd/system/nginx@.service; disabled; preset: enabled)
+     Active: inactive (dead)
+       Docs: man:nginx(8)
+slab@slab:/etc/nginx$

@@ -1,0 +1,186 @@
+slab@slab:~$
+slab@slab:~$ apt install spawn-fcgi php php-cgi php-cli \
+ apache2 libapache2-mod-fcgid -y
+E: Could not open lock file /var/lib/dpkg/lock-frontend - open (13: Permission denied)
+E: Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), are you root?
+slab@slab:~$ sudo !!
+sudo apt install spawn-fcgi php php-cgi php-cli  apache2 libapache2-mod-fcgid -y
+[sudo] password for slab:
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+spawn-fcgi is already the newest version (1.6.4-2).
+php is already the newest version (2:8.3+93ubuntu2).
+php-cgi is already the newest version (2:8.3+93ubuntu2).
+php-cli is already the newest version (2:8.3+93ubuntu2).
+apache2 is already the newest version (2.4.58-1ubuntu8.17).
+libapache2-mod-fcgid is already the newest version (1:2.3.9-4).
+The following package was automatically installed and is no longer required:
+  libfuse2t64
+Use 'sudo apt autoremove' to remove it.
+0 upgraded, 0 newly installed, 0 to remove and 68 not upgraded.
+slab@slab:~$ git --version
+git version 2.43.0
+slab@slab:~$ git clone https://gist.github.com/cea2k/1318020
+Cloning into '1318020'...
+remote: Enumerating objects: 4, done.
+remote: Total 4 (delta 0), reused 0 (delta 0), pack-reused 4 (from 1)
+Receiving objects: 100% (4/4), done.
+Resolving deltas: 100% (1/1), done.
+slab@slab:~$ ls -l
+total 20
+drwxrwxr-x 3 slab slab 4096 Nov 12 11:46 1318020
+-rw-r--r-- 1 slab slab  682 Oct 29 19:21 hello-otus_1.0.0_all.deb
+drwxrwxr-x 4 slab slab 4096 Oct 29 17:09 hello-otus-build
+drwxrwxr-x 4 slab slab 4096 Nov  5 12:55 OTUS
+drwxrwxr-x 3 slab slab 4096 Nov  5 13:02 php_cgi
+slab@slab:~$ ls -l 1318020/
+.git/    php_cgi
+slab@slab:~$ ls -l 1318020/
+total 4
+-rw-rw-r-- 1 slab slab 1629 Nov 12 11:46 php_cgi
+slab@slab:~$ cat /etc/spawn-fcgi/fcgi.conf
+# You must set some working options before the "spawn-fcgi" service will work.
+# If SOCKET points to a file, then this file is cleaned up by the init script.
+#
+# See spawn-fcgi(1) for all possible options.
+#
+# Example :
+SOCKET=/var/run/php-fcgi.sock
+OPTIONS="-u www-data -g www-data -s  -S -M 0600 -C 32 -F 1 -- /usr/bin/php-cgi"
+slab@slab:~$ cat /etc/systemd/system/spawn-fcgi.service
+[Unit]
+Description=Spawn-fcgi startup service by Otus
+After=network.target
+
+[Service]
+Type=simple
+PIDFile=/var/run/spawn-fcgi.pid
+EnvironmentFile=/etc/spawn-fcgi/fcgi.conf
+ExecStart=/usr/bin/spawn-fcgi -n $OPTIONS
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+
+slab@slab:~$ ls -l
+total 20
+drwxrwxr-x 3 slab slab 4096 Nov 12 11:46 1318020
+-rw-r--r-- 1 slab slab  682 Oct 29 19:21 hello-otus_1.0.0_all.deb
+drwxrwxr-x 4 slab slab 4096 Oct 29 17:09 hello-otus-build
+drwxrwxr-x 4 slab slab 4096 Nov  5 12:55 OTUS
+drwxrwxr-x 3 slab slab 4096 Nov  5 13:02 php_cgi
+slab@slab:~$ vi 1318020/
+.git/    php_cgi
+slab@slab:~$ vi 1318020/
+slab@slab:~$ systemctl status spawn-fcgi.service
+0 spawn-fcgi.service - Spawn-fcgi startup service by Otus
+     Loaded: loaded (/etc/systemd/system/spawn-fcgi.service; disabled; preset: enabled)
+     Active: inactive (dead)
+
+Nov 12 11:57:38 slab systemd[1]: /etc/systemd/system/spawn-fcgi.service:7: PIDFile= references a path below>
+...skipping...
+0 spawn-fcgi.service - Spawn-fcgi startup service by Otus
+     Loaded: loaded (/etc/systemd/system/spawn-fcgi.service; disabled; preset: enabled)
+     Active: inactive (dead)
+
+Nov 12 11:57:38 slab systemd[1]: /etc/systemd/system/spawn-fcgi.service:7: PIDFile= references a path below>
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+
+slab@slab:~$ systemctl start spawn-fcgi.service
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ====
+Authentication is required to start 'spawn-fcgi.service'.
+Authenticating as: slab
+Password:
+==== AUTHENTICATION COMPLETE ====
+slab@slab:~$ systemctl status spawn-fcgi.service
+? spawn-fcgi.service - Spawn-fcgi startup service by Otus
+     Loaded: loaded (/etc/systemd/system/spawn-fcgi.service; disabled; preset: enabled)
+     Active: active (running) since Thu 2026-11-12 11:57:52 UTC; 2s ago
+   Main PID: 3199 (php-cgi)
+      Tasks: 33 (limit: 978)
+     Memory: 24.7M (peak: 24.8M)
+        CPU: 21ms
+     CGroup: /system.slice/spawn-fcgi.service
+             +-3199 /usr/bin/php-cgi
+             +-3200 /usr/bin/php-cgi
+             +-3201 /usr/bin/php-cgi
+             +-3202 /usr/bin/php-cgi
+             +-3203 /usr/bin/php-cgi
+             +-3204 /usr/bin/php-cgi
+             +-3205 /usr/bin/php-cgi
+             +-3206 /usr/bin/php-cgi
+             +-3207 /usr/bin/php-cgi
+             +-3208 /usr/bin/php-cgi
+             +-3209 /usr/bin/php-cgi
+             +-3210 /usr/bin/php-cgi
+             +-3211 /usr/bin/php-cgi
+             +-3212 /usr/bin/php-cgi
+             +-3213 /usr/bin/php-cgi
+             +-3214 /usr/bin/php-cgi
+             +-3215 /usr/bin/php-cgi
+             +-3216 /usr/bin/php-cgi
+             +-3217 /usr/bin/php-cgi
+             +-3218 /usr/bin/php-cgi
+             +-3219 /usr/bin/php-cgi
+             +-3220 /usr/bin/php-cgi
+             +-3221 /usr/bin/php-cgi
+             +-3222 /usr/bin/php-cgi
+             +-3223 /usr/bin/php-cgi
+             +-3224 /usr/bin/php-cgi
+             +-3225 /usr/bin/php-cgi
+             +-3226 /usr/bin/php-cgi
+             +-3227 /usr/bin/php-cgi
+             +-3228 /usr/bin/php-cgi
+             +-3229 /usr/bin/php-cgi
+             +-3230 /usr/bin/php-cgi
+             L-3231 /usr/bin/php-cgi
+
+Nov 12 11:57:52 slab systemd[1]: Started spawn-fcgi.service - Spawn-fcgi startup service by Otus.
+slab@slab:~$
