@@ -1,0 +1,187 @@
+
+slab@slab:~$ ls -l /etc/systemd/system/watchlog.
+watchlog.service  watchlog.timer
+slab@slab:~$ cat /etc/default/watchlog
+# Conf file for my watchlog service
+# Place it to /etc/default
+
+#File and word in that file that we will be monit
+WORD="ALERT"
+LOG=/var/log/watchlog.log
+
+
+
+
+
+
+
+
+slab@slab:~$ cat /var/log/watchlog.log
+
+Welcome to Ubuntu 24.04.4 LTS (GNU/Linux 6.8.0-147-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Tue Nov  3 09:54:04 AM UTC 2026
+
+  System load:  0.0               Processes:             135
+ALERT
+  Usage of /:   53.2% of 9.75GB   Users logged in:       0
+  Memory usage: 57%               IPv4 address for eth0: 172.29.16.108
+  Swap usage:   0%
+
+ * Canonical Workshop gives developers fast, composable, reproducible, and
+   secure developer environments that are perfect for agentic workflows.
+
+   https://ubuntu.com/workshop
+
+Expanded Security Maintenance for Applications is not enabled.
+
+63 updates can be applied immediately.
+1 of these updates is a standard security update.ALERT
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+Last login: Mon Nov  2 12:11:54 2026 from 172.29.16.1
+
+Welcome to Ubuntu 24.04.4 LTS (GNU/Linux 6.8.0-147-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ALERT
+ * Support:        https://ubuntu.com/pro
+ALERT
+ System information as of Tue Nov  3 09:54:04 AM UTC 2026
+
+  System load:  0.0               Processes:             135
+  Usage of /:   53.2% of 9.75GB   Users logged in:       0
+  Memory usage: 57%               IPv4 address for eth0: 172.29.16.108
+  Swap usage:   0%
+
+ * Canonical Workshop gives developers fast, composable, reproducible, and
+   secure developer environments that are perfect for agentic workflows.
+
+   https://ubuntu.com/workshop
+
+Expanded Security Maintenance for Applications is not enabled.
+
+63 updates can be applied immediately.
+1 of these updates is a standard security update.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+Last login: Mon Nov  2 12:11:54 2026 from 172.29.16.1
+
+slab@slab:~$
+
+
+
+
+
+
+
+
+
+
+
+slab@slab:~$ cat /opt/watchlog.sh
+#!/bin/bash
+
+WORD=$1
+LOG=$2
+DATE=`date`
+
+if (grep $WORD $LOG) &> /dev/null
+then
+        logger "$DATE: I found word, Master!"
+else
+        exit 0
+fi
+
+slab@slab:~$ ls -l /opt/watchlog.sh
+-rwxr-xr-x 1 root root 136 Nov  3 11:57 /opt/watchlog.sh
+slab@slab:~$ cat /etc/sys
+sysctl.conf  sysctl.d/    sysstat/     systemd/
+slab@slab:~$ cat /etc/systemd/system/watchlog.service
+[Unit]
+Description=My Watchlog service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/default/watchlog
+ExecStart=/opt/watchlog.sh $WORD $LOG
+slab@slab:~$
+slab@slab:~$ systemctl status watchlog.service
+0 watchlog.service - My Watchlog service
+     Loaded: loaded (/etc/systemd/system/watchlog.service; static)
+     Active: inactive (dead) since Thu 2026-11-12 11:35:50 UTC; 8s ago
+TriggeredBy: ? watchlog.timer
+    Process: 2110 ExecStart=/opt/watchlog.sh $WORD $LOG (code=exited, status=0/SUCCESS)
+   Main PID: 2110 (code=exited, status=0/SUCCESS)
+        CPU: 9ms
+
+Nov 12 11:35:49 slab systemd[1]: Starting watchlog.service - My Watchlog service...
+Nov 12 11:35:50 slab root[2113]: Thu Nov 12 11:35:50 AM UTC 2026: I found word, Master!
+Nov 12 11:35:50 slab systemd[1]: watchlog.service: Deactivated successfully.
+Nov 12 11:35:50 slab systemd[1]: Finished watchlog.service - My Watchlog service.
+slab@slab:~$ systemctl status watchlog.timer
+? watchlog.timer - Run watchlog script every 30 second
+     Loaded: loaded (/etc/systemd/system/watchlog.timer; enabled; preset: enabled)
+     Active: active (waiting) since Thu 2026-11-12 11:01:33 UTC; 34min ago
+    Trigger: Thu 2026-11-12 11:36:19 UTC; 12s left
+   Triggers: ? watchlog.service
+
+Nov 12 11:01:33 slab systemd[1]: Started watchlog.timer - Run watchlog script every 30 second.
+slab@slab:~$ systemctl cat watchlog.service
+# /etc/systemd/system/watchlog.service
+[Unit]
+Description=My Watchlog service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/default/watchlog
+ExecStart=/opt/watchlog.sh $WORD $LOG
+slab@slab:~$ systemctl status watchlog.service
+0 watchlog.service - My Watchlog service
+     Loaded: loaded (/etc/systemd/system/watchlog.service; static)
+     Active: inactive (dead) since Thu 2026-11-12 11:36:27 UTC; 12s ago
+TriggeredBy: ? watchlog.timer
+    Process: 2135 ExecStart=/opt/watchlog.sh $WORD $LOG (code=exited, status=0/SUCCESS)
+   Main PID: 2135 (code=exited, status=0/SUCCESS)
+        CPU: 3ms
+
+Nov 12 11:36:27 slab systemd[1]: Starting watchlog.service - My Watchlog service...
+Nov 12 11:36:27 slab systemd[1]: watchlog.service: Deactivated successfully.
+Nov 12 11:36:27 slab systemd[1]: Finished watchlog.service - My Watchlog service.
+slab@slab:~$ systemctl status watchlog.service
+0 watchlog.service - My Watchlog service
+     Loaded: loaded (/etc/systemd/system/watchlog.service; static)
+     Active: inactive (dead) since Thu 2026-11-12 11:36:27 UTC; 17s ago
+TriggeredBy: ? watchlog.timer
+    Process: 2135 ExecStart=/opt/watchlog.sh $WORD $LOG (code=exited, status=0/SUCCESS)
+   Main PID: 2135 (code=exited, status=0/SUCCESS)
+        CPU: 3ms
+
+Nov 12 11:36:27 slab systemd[1]: Starting watchlog.service - My Watchlog service...
+Nov 12 11:36:27 slab systemd[1]: watchlog.service: Deactivated successfully.
+Nov 12 11:36:27 slab systemd[1]: Finished watchlog.service - My Watchlog service.
+slab@slab:~$ watch systemctl status watchlog.service
+slab@slab:~$ tail -n 1000 /var/log/syslog  | grep "ALERT"
+slab@slab:~$ tail -n 1000 /var/log/syslog  | grep word
+2026-11-12T11:01:33.736945+00:00 slab systemd[1]: Started systemd-ask-password-console.path - Dispatch      Password Requests to Console Directory Watch.
+2026-11-12T11:01:33.736947+00:00 slab systemd[1]: systemd-ask-password-plymouth.path - Forward Password      Requests to Plymouth Directory Watch was skipped because of an unmet condition check (ConditionPathExi     sts=/run/plymouth/pid).
+2026-11-12T11:01:33.738833+00:00 slab kernel: systemd[1]: Started systemd-ask-password-wall.path - Forw     ard Password Requests to Wall Directory Watch.
+2026-11-12T11:01:33.738871+00:00 slab kernel: audit: type=1400 audit(1794481292.791:2): apparmor="STATU     S" operation="profile_load" profile="unconfined" name="1password" pid=885 comm="apparmor_parser"
+2026-11-12T11:35:50.008407+00:00 slab root: Thu Nov 12 11:35:50 AM UTC 2026: I found word, Master!
+2026-11-12T11:36:27.181997+00:00 slab root: Thu Nov 12 11:36:27 AM UTC 2026: I found word, Master!
+2026-11-12T11:36:58.741957+00:00 slab root: Thu Nov 12 11:36:58 AM UTC 2026: I found word, Master!
+2026-11-12T11:37:28.897637+00:00 slab root: Thu Nov 12 11:37:28 AM UTC 2026: I found word, Master!
+slab@slab:~$
